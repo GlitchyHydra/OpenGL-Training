@@ -8,6 +8,7 @@
 #include "IndexBuffer.h"
 #include "VertexArray.h"
 #include "Shader.h"
+#include "VertexBufferLayout.h"
 
 
 int main(void)
@@ -17,18 +18,16 @@ int main(void)
     /* Initialize the library */
     if (!glfwInit())
         return -1;
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    std::cout << "Hee" << std::endl;
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(640, 480, "Renderer Training", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
         return -1;
     }
-    std::cout << "Hee" << std::endl;
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
@@ -66,19 +65,18 @@ int main(void)
     shader.Bind();
     shader.SetUniform4f("u_Color", 0.6f, 0.3f, 0.8f, 1.0f);
 
+    Renderer renderer;
+
     float r = 0.0f;
     float increment = 0.05f;
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
+        renderer.Clear();
         shader.SetUniform4f("u_Color", r, 0.3f, 0.8f, 1.0f);
-        va.Bind();
-        ib.Bind();
-        //what draw, number of indicies,type
-        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
-        /* Swap front and back buffers */
+      
+        renderer.Draw(va, ib, shader);
 
         if (r >= 1.0f) increment = -0.05f;
         else if (r <= 0.0f) increment = 0.05f;
