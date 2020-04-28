@@ -11,6 +11,9 @@
 #include "VertexBufferLayout.h"
 #include "Texture.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 
 int main(void)
 {
@@ -67,10 +70,18 @@ int main(void)
 
     IndexBuffer ib(indicies, 6);
 
+    //left, right, bottom, top
+    glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 0.f, 0.f));
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 0.f));
+
+    glm::mat4 mvp = proj * view * model;
+
     Shader shader("res/shaders/Basic.shader");
     shader.Bind();
     shader.SetUniform4f("u_Color", 0.6f, 0.3f, 0.8f, 1.0f);
-
+    shader.SetUniformMat4f("u_MVP", mvp);
+    
     Texture texture("res/textures/brick.png");
     texture.Bind();
     shader.SetUniform1i("u_Texture", 0);
