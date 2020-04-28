@@ -92,7 +92,7 @@ int main(void)
 
     //left, right, bottom, top
     glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
-    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 0.f, 0.f));
+    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0.f, 0.f));
 
 
 
@@ -125,7 +125,8 @@ int main(void)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    glm::vec3 translation(1, 1, 0);
+    glm::vec3 translationA(0.f, 1.f, 0.f);
+    glm::vec3 translationB(1.5f, -0.5f, 0.f);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -138,18 +139,28 @@ int main(void)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        shader.Bind();
-        glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
-        glm::mat4 mvp = proj * view * model;
+        {
+            shader.Bind();
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), translationA);
+            glm::mat4 mvp = proj * view * model;
+            shader.SetUniformMat4f("u_MVP", mvp);
+            renderer.Draw(va, ib, shader);
+        }
 
-        shader.SetUniformMat4f("u_MVP", mvp);
-        renderer.Draw(va, ib, shader);
+        {
+            //shader.Bind();
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), translationB);
+            glm::mat4 mvp = proj * view * model;
+            shader.SetUniformMat4f("u_MVP", mvp);
+            renderer.Draw(va, ib, shader);
+        }
 
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
         {
             ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-            ImGui::SliderFloat3("Translation", &translation.x, -1.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+            ImGui::SliderFloat3("TranslationA", &translationA.x, -2.0f, 2.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::SliderFloat3("TranslationB", &translationB.x, -2.0f, 2.0f);
             ImGui::End();
         }
 
