@@ -18,6 +18,10 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 int main(void)
 {
     GLFWwindow* window;
@@ -46,7 +50,7 @@ int main(void)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Renderer Training", NULL, NULL);
+    window = glfwCreateWindow(1920, 1080, "Renderer Training", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -65,10 +69,10 @@ int main(void)
 
     //vertex info (position)
     {float positions[] = {
-        -0.5f, -0.5f, 0.0f, 0.0f, //0
-         0.5f, -0.5f, 1.0f, 0.0f, //1
-         0.5f,  0.5f, 1.0f, 1.0f, //2
-        -0.5f,  0.5f, 0.0f, 1.0f  //3
+        -100.5f, -100.5f, 0.0f, 0.0f, //0
+         100.5f, -100.5f, 1.0f, 0.0f, //1
+         100.5f,  100.5f, 1.0f, 1.0f, //2
+        -100.5f,  100.5f, 0.0f, 1.0f  //3
     };
 
     //triangle vertex indicies
@@ -91,7 +95,7 @@ int main(void)
     IndexBuffer ib(indicies, 6);
 
     //left, right, bottom, top
-    glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+    glm::mat4 proj = glm::ortho(0.f, 1920.0f, 0.f, 1080.0f, -1.0f, 1.0f);
     glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0.f, 0.f));
 
 
@@ -125,8 +129,8 @@ int main(void)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    glm::vec3 translationA(0.f, 1.f, 0.f);
-    glm::vec3 translationB(1.5f, -0.5f, 0.f);
+    glm::vec3 translationA(1000.f, 500.f, 0.f);
+    glm::vec3 translationB(800.0f, 400.5f, 0.f);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -158,9 +162,9 @@ int main(void)
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
         {
             ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-            ImGui::SliderFloat3("TranslationA", &translationA.x, -2.0f, 2.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+            ImGui::SliderFloat3("TranslationA", &translationA.x, 0.0f, 1920.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-            ImGui::SliderFloat3("TranslationB", &translationB.x, -2.0f, 2.0f);
+            ImGui::SliderFloat3("TranslationB", &translationB.x, 0.0f, 1080.0f);
             ImGui::End();
         }
 
