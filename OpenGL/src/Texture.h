@@ -1,20 +1,19 @@
 #pragma once
 #include "Renderer.h"
 
-enum class TextureType {
-	TEX_DIFFUSE = 0, TEX_SPECULAR = 1
+enum class TextureType
+{
+	DIFFUSE = 0, SPECULAR = 1
 };
 
 class Texture
 {
 private:
-	   unsigned int m_RendererID;
-	   std::string m_FilePath;
-	   unsigned char* m_LocalBuffer;
-	   int m_Width, m_Height, m_BPP;
+	unsigned int m_RendererID;
+	std::string m_FilePath;
+	unsigned char* m_LocalBuffer;
+	int m_Width, m_Height, m_BPP;
 public:
-	TextureType type;
-
 	Texture(const std::string& path);
 	~Texture();
 	void Bind(unsigned int slot = 0) const;

@@ -79,7 +79,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
     }
 
-    return Mesh(vertices, indices, textures, VertexArray());
+    return Mesh(vertices, indices, textures);
 }
 
 std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType aiType, TextureType typeName)
@@ -90,8 +90,9 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
     {
         aiString str;
         mat->GetTexture(aiType, i, &str);
+        std::cout << "texture: " << str.C_Str() << std::endl;
         Texture texture(str.C_Str());
-        texture.type = typeName;
+        //texture.type = typeName;
         //texture.path = str;
         textures.push_back(texture);
     }
@@ -101,6 +102,9 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 
 void Model::Draw(Shader shader, Renderer renderer)
 {
-    for (auto& mesh : meshes)
+    for (auto& mesh : meshes) {
+
+        std::cout << mesh.vertices.size() << std::endl;
         renderer.Draw(mesh.va, mesh.ib, shader);
+    }
 }

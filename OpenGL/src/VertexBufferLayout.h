@@ -14,9 +14,9 @@ struct LayoutElement
 	{
 		switch (type)
 		{
-			case GL_FLOAT: return 4;
-			case GL_UNSIGNED_INT: return 4;
-			case GL_UNSIGNED_BYTE: return 1;
+		case GL_FLOAT: return 4;
+		case GL_UNSIGNED_INT: return 4;
+		case GL_UNSIGNED_BYTE: return 1;
 		}
 		ASSERT(false);
 		return 0;
@@ -25,7 +25,7 @@ struct LayoutElement
 
 class VertexBufferLayout
 {
-private :
+private:
 	std::vector<LayoutElement> m_Elements;
 	unsigned int m_Stride;
 public:

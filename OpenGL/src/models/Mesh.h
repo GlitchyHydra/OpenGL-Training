@@ -27,12 +27,7 @@ private:
 	VertexBuffer vb;
 	VertexBufferLayout vbl;
 public:
-	Mesh(std::vector<Vertex> vert, std::vector<unsigned int> ind, std::vector<Texture> tex,
-		VertexArray va_) : vertices(vert), indices(ind), textures(tex), va(va_)
-	{
-		 VertexBuffer vb(&vertices[0], vert.size());
-		 IndexBuffer ib(&indices[0], indices.size());
-	};
+	Mesh(std::vector<Vertex> vert, std::vector<unsigned int> ind, std::vector<Texture> tex);
 	~Mesh();
 
 	void Bind() const;

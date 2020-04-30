@@ -29,3 +29,4 @@ void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, const Shader& 
     //what draw, number of indicies,type
     GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
 }
+

@@ -18,7 +18,7 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
-#include "models/Model.h"
+//#include "models/Model.h"
 
 int main(void)
 {
@@ -63,12 +63,10 @@ int main(void)
         std::cout << "error";
     }
 
-    std::cout << glGetString(GL_VERSION) << std::endl;
-    std::string my_path("res/models/nanosuit/.dae");
-    Model model(my_path);
 
     //vertex info (position)
-    {float positions[] = {
+    {
+    float positions[] = {
         -100.5f, -100.5f, 0.0f, 0.0f, //0
          100.5f, -100.5f, 1.0f, 0.0f, //1
          100.5f,  100.5f, 1.0f, 1.0f, //2
@@ -81,8 +79,14 @@ int main(void)
         2, 3, 0
     };
 
-    GLCall(glEnable(GL_BLEND));
-    GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
+    std::cout << glGetString(GL_VERSION) << std::endl;
+    //std::string my_path("res/models/nanosuit/nanosuit.obj");
+   // Model model_gen(my_path);
+
+    /*Shader shader_model("res/shaders/Model.shader");
+    shader_model.Bind();
+    shader_model.Unbind();*/
 
     VertexArray va;
     VertexBuffer vb(positions, 4 * 4 * sizeof(float));
@@ -98,12 +102,9 @@ int main(void)
     glm::mat4 proj = glm::ortho(0.f, 1920.0f, 0.f, 1080.0f, -1.0f, 1.0f);
     glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0.f, 0.f));
 
-
-
     Shader shader("res/shaders/Basic.shader");
     shader.Bind();
-    shader.SetUniform4f("u_Color", 0.6f, 0.3f, 0.8f, 1.0f);
-    
+
     Texture texture("res/textures/brick.png");
     texture.Bind();
     shader.SetUniform1i("u_Texture", 0);
@@ -113,19 +114,15 @@ int main(void)
     ib.Unbind();
     shader.Unbind();
 
+
     Renderer renderer;
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
-    // Setup Dear ImGui style
     ImGui::StyleColorsDark();
-    //ImGui::StyleColorsClassic();
-
-
 
     // Setup Platform/Renderer bindings
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -136,18 +133,12 @@ int main(void)
     glm::vec3 translationC(1000.0f, 500.0f, 0.f);
 
 
-
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
         renderer.Clear();
-        model.Draw(shader, renderer);
         
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
         {
             shader.Bind();
             glm::mat4 model = glm::translate(glm::mat4(1.0f), translationA);
@@ -157,12 +148,26 @@ int main(void)
         }
 
         {
-            //shader.Bind();
+            shader.Bind();
             glm::mat4 model = glm::translate(glm::mat4(1.0f), translationB);
             glm::mat4 mvp = proj * view * model;
             shader.SetUniformMat4f("u_MVP", mvp);
             renderer.Draw(va, ib, shader);
         }
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        /*{
+            shader_model.Bind();
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), translationC);
+            glm::mat4 mvp = proj * view * model;
+            shader.SetUniformMat4f("u_MVP", mvp);
+            model_gen.Draw(shader_model, renderer);
+        }*/
+
+        
 
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
         {

@@ -2,7 +2,7 @@
 
 class VertexBuffer
 {
-private: 
+private:
 	unsigned int m_RendererID;
 public:
 	VertexBuffer() : m_RendererID(0) {};
