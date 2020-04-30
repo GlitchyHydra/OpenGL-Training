@@ -2,12 +2,24 @@
 #include "../Renderer.h"
 #include <gl/glew.h>
 
+Mesh::~Mesh()
+{
+
+}
+
+void Mesh::Bind() const
+{
+	va.Bind();
+}
+
 void Mesh::SetupMesh()
 {
-	GLCall(glGenVertexArrays(1, &VAO_id));
-	glGenBuffers(1, &VBO_id);
-	glGenBuffers(1, &EBO_id);
-
-	glBindVertexArray(VAO_id);
-
+	va.Bind();
+	vb.Bind();
+	vbl.Push<float>(3);
+	vbl.Push<float>(3);
+	vbl.Push<float>(2);
+	va.AddBuffer(vb, vbl);
+	//unbind after setup
+	va.Unbind();
 }

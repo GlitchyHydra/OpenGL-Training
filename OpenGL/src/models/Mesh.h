@@ -4,32 +4,35 @@
 #include <glm/vec2.hpp>
 #include <vector>
 
+#include "../VertexArray.h"
+#include "../IndexBuffer.h"
+#include "../VertexBufferLayout.h"
+#include "../Texture.h"
+
 struct Vertex {
 	glm::vec3 Position;
 	glm::vec3 Normal;
 	glm::vec2 TexCoords;
 };
 
-enum TextureType {
-	TEX_DIFFUSE = 0, TEX_BLICK = 1
-};
-
-struct Texture {
-	unsigned int id;
-	TextureType type;
-};
-
 class Mesh
 {
-private:
+public:
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<Texture> textures;
-
-	unsigned int VAO_id, VBO_id, EBO_id;
+	IndexBuffer ib;
+	VertexArray va;
+private:
+	VertexBuffer vb;
+	VertexBufferLayout vbl;
 public:
-	Mesh(std::vector<Vertex> vert, std::vector<unsigned int> ind, std::vector<Texture> tex)
-		: vertices(vert), indices(ind), textures(tex) {};
+	Mesh(std::vector<Vertex> vert, std::vector<unsigned int> ind, std::vector<Texture> tex,
+		VertexArray va_) : vertices(vert), indices(ind), textures(tex), va(va_)
+	{
+		 VertexBuffer vb(&vertices[0], vert.size());
+		 IndexBuffer ib(&indices[0], indices.size());
+	};
 	~Mesh();
 
 	void Bind() const;

@@ -2,7 +2,8 @@
 
 #include <iostream>
 
-Model::Model(std::string& path) : mFilePath(path)
+Model::Model(std::string& path) :
+    mFilePath(path)
 {
     loadModel();
 }
@@ -71,26 +72,35 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     //different texures: diffuse and etc.
     if (mesh->mMaterialIndex >= 0)
     {
-
+        aiMaterial* material = (scene->mMaterials[mesh->mMaterialIndex]);
+        std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, TextureType(0));
+        textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+        std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, TextureType(1));
+        textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
     }
 
-    return Mesh(vertices, indices, textures);
+    return Mesh(vertices, indices, textures, VertexArray());
 }
 
-std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, const char* typeName)
+std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType aiType, TextureType typeName)
 {
     std::vector<Texture> textures;
 
-    for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
+    for (unsigned int i = 0; i < mat->GetTextureCount(aiType); i++)
     {
         aiString str;
-        mat->GetTexture(type, i, &str);
-        Texture texture;
-        //texture.id = TextureFromFile(str.C_Str(), directory);
-        //texture.type = typeName;
+        mat->GetTexture(aiType, i, &str);
+        Texture texture(str.C_Str());
+        texture.type = typeName;
         //texture.path = str;
         textures.push_back(texture);
     }
 
     return textures;
+}
+
+void Model::Draw(Shader shader, Renderer renderer)
+{
+    for (auto& mesh : meshes)
+        renderer.Draw(mesh.va, mesh.ib, shader);
 }

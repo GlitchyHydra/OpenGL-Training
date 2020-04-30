@@ -18,9 +18,7 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+#include "models/Model.h"
 
 int main(void)
 {
@@ -66,6 +64,8 @@ int main(void)
     }
 
     std::cout << glGetString(GL_VERSION) << std::endl;
+    std::string my_path("res/models/nanosuit/.dae");
+    Model model(my_path);
 
     //vertex info (position)
     {float positions[] = {
@@ -125,19 +125,24 @@ int main(void)
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsClassic();
 
+
+
     // Setup Platform/Renderer bindings
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     glm::vec3 translationA(1000.f, 500.f, 0.f);
     glm::vec3 translationB(800.0f, 400.5f, 0.f);
+    glm::vec3 translationC(1000.0f, 500.0f, 0.f);
+
+
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
         renderer.Clear();
-
+        model.Draw(shader, renderer);
         
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();

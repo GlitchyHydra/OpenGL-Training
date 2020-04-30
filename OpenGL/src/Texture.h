@@ -1,6 +1,10 @@
 #pragma once
 #include "Renderer.h"
 
+enum class TextureType {
+	TEX_DIFFUSE = 0, TEX_SPECULAR = 1
+};
+
 class Texture
 {
 private:
@@ -9,6 +13,8 @@ private:
 	   unsigned char* m_LocalBuffer;
 	   int m_Width, m_Height, m_BPP;
 public:
+	TextureType type;
+
 	Texture(const std::string& path);
 	~Texture();
 	void Bind(unsigned int slot = 0) const;
