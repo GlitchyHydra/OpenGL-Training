@@ -1,5 +1,4 @@
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+﻿#include "OpenGL_config.h"
 #include <iostream>
 #include <string>
 
@@ -14,167 +13,58 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
-
+#include "primitives/Cube.h"
+#include "models/Scene.h"
 //#include "models/Model.h"
 
 int main(void)
 {
-    GLFWwindow* window;
-
-#if __APPLE__
-    // GL 3.2 + GLSL 150
-    const char* glsl_version = "#version 150";
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
-#else
-    // GL 3.0 + GLSL 130
-    const char* glsl_version = "#version 130";
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
-#endif
-
-
-    /* Initialize the library */
-    if (!glfwInit())
-        return -1;
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(1920, 1080, "Renderer Training", NULL, NULL);
-    if (!window)
-    {
-        glfwTerminate();
-        return -1;
-    }
-    /* Make the window's context current */
-    glfwMakeContextCurrent(window);
-
-    glfwSwapInterval(1);
-
-    if (glewInit() != GLEW_OK) {
-        std::cout << "error";
-    }
-
-
-    //vertex info (position)
-    {
-    float positions[] = {
-        -100.5f, -100.5f, 0.0f, 0.0f, //0
-         100.5f, -100.5f, 1.0f, 0.0f, //1
-         100.5f,  100.5f, 1.0f, 1.0f, //2
-        -100.5f,  100.5f, 0.0f, 1.0f  //3
-    };
-
-    //triangle vertex indicies
-    unsigned int indicies[] = {
-        0, 1, 2,
-        2, 3, 0
-    };
-
-
-    std::cout << glGetString(GL_VERSION) << std::endl;
-    //std::string my_path("res/models/nanosuit/nanosuit.obj");
-   // Model model_gen(my_path);
-
-    /*Shader shader_model("res/shaders/Model.shader");
-    shader_model.Bind();
-    shader_model.Unbind();*/
-
-    VertexArray va;
-    VertexBuffer vb(positions, 4 * 4 * sizeof(float));
-
-    VertexBufferLayout layout;
-    layout.Push<float>(2);
-    layout.Push<float>(2);
-    va.AddBuffer(vb, layout);
-
-    IndexBuffer ib(indicies, 6);
-
-    //left, right, bottom, top
-    glm::mat4 proj = glm::ortho(0.f, 1920.0f, 0.f, 1080.0f, -1.0f, 1.0f);
-    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0.f, 0.f));
-
+    My_OpenGL::Config cfg;
+    GLFWwindow* window = cfg.GetWindow();
+    Renderer renderer;
+    My_OpenGL::Scene scene;
+    Cube cube;
+    cube.va.Unbind();
     Shader shader("res/shaders/Basic.shader");
     shader.Bind();
-
     Texture texture("res/textures/brick.png");
     texture.Bind();
     shader.SetUniform1i("u_Texture", 0);
-
-    va.Unbind();
-    vb.Unbind();
-    ib.Unbind();
     shader.Unbind();
 
+    glm::vec3 translationA(1000.f, 500.f, 10.f);
+    glm::vec3 scaleA(1.f, 1.f, 1.f);
 
-    Renderer renderer;
-
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-
-    ImGui::StyleColorsDark();
-
-    // Setup Platform/Renderer bindings
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init(glsl_version);
-
-    glm::vec3 translationA(1000.f, 500.f, 0.f);
-    glm::vec3 translationB(800.0f, 400.5f, 0.f);
-    glm::vec3 translationC(1000.0f, 500.0f, 0.f);
-
-
+    glEnable(GL_DEPTH_TEST);
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         renderer.Clear();
         
         {
             shader.Bind();
             glm::mat4 model = glm::translate(glm::mat4(1.0f), translationA);
-            glm::mat4 mvp = proj * view * model;
-            shader.SetUniformMat4f("u_MVP", mvp);
-            renderer.Draw(va, ib, shader);
+            model[0][0] = scaleA.x;
+            model[1][1] = scaleA.y;
+            model[2][2] = scaleA.z;
+            scene.calculateAndSet(model, shader);
+            renderer.Draw(cube.va, cube.ib, shader);
+            //glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
         }
-
-        {
-            shader.Bind();
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), translationB);
-            glm::mat4 mvp = proj * view * model;
-            shader.SetUniformMat4f("u_MVP", mvp);
-            renderer.Draw(va, ib, shader);
-        }
-
+        
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
-        /*{
-            shader_model.Bind();
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), translationC);
-            glm::mat4 mvp = proj * view * model;
-            shader.SetUniformMat4f("u_MVP", mvp);
-            model_gen.Draw(shader_model, renderer);
-        }*/
-
-        
 
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
         {
             ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
             ImGui::SliderFloat3("TranslationA", &translationA.x, 0.0f, 1920.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+            ImGui::SliderFloat3("ScaleA", &scaleA.x, 0.1f, 2.0f);
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-            ImGui::SliderFloat3("TranslationB", &translationB.x, 0.0f, 1080.0f);
+            //ImGui::SliderFloat("Camera", &height, 0.0f, 1080.0f);
             ImGui::End();
         }
 
@@ -186,12 +76,5 @@ int main(void)
         /* Poll for and process events */
         glfwPollEvents();
     }
-    }
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-    glBindBuffer(GL_ARRAY_BUFFER, 0); // unbind VBO
-    glBindVertexArray(0); // unbind VAO
-    glfwTerminate();
     return 0;
 }

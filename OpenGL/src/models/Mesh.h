@@ -1,13 +1,9 @@
 #pragma once
 
-#include <glm/vec3.hpp>
-#include <glm/vec2.hpp>
-#include <vector>
-
-#include "../VertexArray.h"
-#include "../IndexBuffer.h"
-#include "../VertexBufferLayout.h"
-#include "../Texture.h"
+#include "Texture.h"
+#include "glm//vec3.hpp"
+#include "glm//vec2.hpp"
+#include "VertexBufferLayout.h"
 
 struct Vertex {
 	glm::vec3 Position;

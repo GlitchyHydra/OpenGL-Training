@@ -1,7 +1,5 @@
 #include "Mesh.h"
-#include "../Renderer.h"
-#include <gl/glew.h>
-#include <iostream>
+#include "Renderer.h"
 
 Mesh::Mesh(std::vector<Vertex> vert, std::vector<unsigned int> ind, std::vector<Texture> tex)
 	: vertices(vert), indices(ind), textures(tex)
