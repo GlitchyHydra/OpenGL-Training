@@ -4,18 +4,26 @@
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
 
+struct Vertex {
+	glm::vec3 pos;
+	glm::vec2 tex_pos;
+	glm::vec3 normal;
+};
+
 class Cube
 {
 public:
-	const float vertexInfo[40] =  {
-		-50.0f, -50.0f, -50.0f,  0.0f, 0.0f, //0
-		 50.0f, -50.0f, -50.0f,  1.0f, 0.0f, //1
-		 50.0f,  50.0f, -50.0f,  1.0f, 1.0f, //2
-		-50.0f,  50.0f, -50.0f,  0.0f, 1.0f, //3
-		-20.0f,  70.0f,  50.0f,  0.0f, 0.0f, //4
-		 70.0f,  70.0f,  50.0f,  1.0f, 0.0f, //5
-		-30.0f, -30.0f,  50.0f,  0.0f, 1.0f, //6
-		 70.0f, -30.0f,  50.0f,  1.0f, 1.0f  //7
+	 //position, texCoord, normal
+	Vertex vertexInfo[8] =  {
+				  Vertex {glm::vec3(-50.5f,  50.5f,  50.5f),	glm::vec2(0.f, 1.f), glm::vec3(0.0f, 0.0f, 0.0f)},
+				  Vertex {glm::vec3(-50.5f, -50.5f,  50.5f),	glm::vec2(0.f, 0.f), glm::vec3(0.0f, 0.0f, 0.0f)},
+				  Vertex {glm::vec3( 50.5f, -50.5f,  50.5f),	glm::vec2(1.f, 0.f), glm::vec3(0.0f, 0.0f, 0.0f)},
+				  Vertex {glm::vec3( 50.5f,  50.5f,  50.5f),	glm::vec2(1.f, 1.f), glm::vec3(0.0f, 0.0f, 0.0f)},
+
+				  Vertex {glm::vec3( 50.5f,  50.5f, -50.5f),	glm::vec2(0.f, 1.f), glm::vec3(0.0f, 0.0f, 0.0f)},
+				  Vertex {glm::vec3( 50.5f, -50.5f, -50.5f),	glm::vec2(0.f, 0.f), glm::vec3(0.0f, 0.0f, 0.0f)},
+				  Vertex {glm::vec3(-50.5f, -50.5f, -50.5f),	glm::vec2(1.f, 0.f), glm::vec3(0.0f, 0.0f, 0.0f)},
+				  Vertex {glm::vec3(-50.5f,  50.5f, -50.5f),	glm::vec2(1.f, 1.f), glm::vec3(0.0f, 0.0f, 0.0f)},
 	};
 	const unsigned int indicesInfo[36] = {
 		//front
@@ -41,7 +49,7 @@ public:
 	VertexBuffer vb;
 	IndexBuffer ib;
 private:
-	unsigned int sizeVertex = (3 + 2) * 8;
+	unsigned int sizeVertex = (3 + 2 + 3) * 8;
 	unsigned int sizeIndices = 36;
 	VertexBufferLayout layout;
 public:

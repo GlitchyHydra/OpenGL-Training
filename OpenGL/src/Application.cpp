@@ -14,7 +14,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "primitives/Cube.h"
-#include "models/Scene.h"
+#include "models/Light.h"
 //#include "models/Model.h"
 
 int main(void)
@@ -22,18 +22,22 @@ int main(void)
     My_OpenGL::Config cfg;
     GLFWwindow* window = cfg.GetWindow();
     Renderer renderer;
-    My_OpenGL::Scene scene;
     Cube cube;
     cube.va.Unbind();
     Shader shader("res/shaders/Basic.shader");
     shader.Bind();
-    Texture texture("res/textures/brick.png");
+    Texture texture("res/textures/container.png");
     texture.Bind();
     shader.SetUniform1i("u_Texture", 0);
+    My_OpenGL::Light light(shader);
+    shader.SetUniformMat4f("gWorld", glm::ortho(0.f, 1920.0f, 0.f, 1080.0f, -1000.0f, 1000.0f));
+
     shader.Unbind();
 
-    glm::vec3 translationA(1000.f, 500.f, 10.f);
+    glm::vec3 translationA(960.f, 540.f, 10.f);
     glm::vec3 scaleA(1.f, 1.f, 1.f);
+
+    float angle = 0.0f;
 
     glEnable(GL_DEPTH_TEST);
     /* Loop until the user closes the window */
@@ -46,14 +50,21 @@ int main(void)
         {
             shader.Bind();
             glm::mat4 model = glm::translate(glm::mat4(1.0f), translationA);
-            model[0][0] = scaleA.x;
+            //model = glm::rotate(model, -45.0f, translationA);
+            /*model[0][0] = scaleA.x;
             model[1][1] = scaleA.y;
-            model[2][2] = scaleA.z;
-            scene.calculateAndSet(model, shader);
+            model[2][2] = scaleA.z;*/
+            double time = glfwGetTime();
+            scene.setView(model, shader);
+            //scene.calculateAndSet(time, model, shader);
             renderer.Draw(cube.va, cube.ib, shader);
             //glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
         }
-        
+        angle += 100;
+        if (angle >= 360)
+        {
+            angle = 0.f;
+        }
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
