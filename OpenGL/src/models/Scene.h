@@ -21,7 +21,6 @@ namespace My_OpenGL {
 			*/
 			
 	public:
-			void calculateAndSet(double& time, glm::mat4& model, Shader& shader) const;
 			void setView(glm::mat4& model, Shader& shader) const;
 	};
 };

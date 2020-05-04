@@ -8,13 +8,16 @@ namespace My_OpenGL {
     {
         // Когда пользователь нажимает ESC, мы устанавливаем свойство WindowShouldClose в true, 
         // и приложение после этого закроется
-        if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-            glfwSetWindowShouldClose(window, GL_TRUE);
+        /*if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+            glfwSetWindowShouldClose(window, GL_TRUE);*/
 
-        float cameraSpeed = 0.05f;
+        if (action == GLFW_PRESS)
+            scene.camera.OnKeyboard(key);
+    }
 
-        if (key == GLFW_KEY_W && action == GLFW_PRESS)
-            scene.camera.position += cameraSpeed ;
+    void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+    {
+        scene.camera.OnMouse(xpos, ypos);
     }
 
     Config::Config()
@@ -57,6 +60,10 @@ namespace My_OpenGL {
         // Setup Platform/Renderer bindings
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init(glsl_version);
+
+        /*glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetCursorPosCallback(window, mouse_callback);
+        glfwSetCursorPos(window, 960.0, 540);*/
 
         glfwSetKeyCallback(window, key_callback);
     }

@@ -33,11 +33,9 @@ int main(void)
     shader.SetUniformMat4f("gWorld", glm::ortho(0.f, 1920.0f, 0.f, 1080.0f, -1000.0f, 1000.0f));
 
     shader.Unbind();
-
+    scene.camera.Print();
     glm::vec3 translationA(960.f, 540.f, 10.f);
     glm::vec3 scaleA(1.f, 1.f, 1.f);
-
-    float angle = 0.0f;
 
     glEnable(GL_DEPTH_TEST);
     /* Loop until the user closes the window */
@@ -51,20 +49,16 @@ int main(void)
             shader.Bind();
             glm::mat4 model = glm::translate(glm::mat4(1.0f), translationA);
             //model = glm::rotate(model, -45.0f, translationA);
-            /*model[0][0] = scaleA.x;
+            model[0][0] = scaleA.x;
             model[1][1] = scaleA.y;
-            model[2][2] = scaleA.z;*/
+            model[2][2] = scaleA.z;
             double time = glfwGetTime();
             scene.setView(model, shader);
             //scene.calculateAndSet(time, model, shader);
             renderer.Draw(cube.va, cube.ib, shader);
             //glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
         }
-        angle += 100;
-        if (angle >= 360)
-        {
-            angle = 0.f;
-        }
+
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -74,6 +68,8 @@ int main(void)
             ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
             ImGui::SliderFloat3("TranslationA", &translationA.x, 0.0f, 1920.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
             ImGui::SliderFloat3("ScaleA", &scaleA.x, 0.1f, 2.0f);
+            ImGui::SliderFloat("Down/Up", &scene.camera.yaw, -2.0f, 2.0f);
+            ImGui::SliderFloat("Right/left", &scene.camera.pitch, -2.0f, 2.0f);
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
             //ImGui::SliderFloat("Camera", &height, 0.0f, 1080.0f);
             ImGui::End();
