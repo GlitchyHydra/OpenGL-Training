@@ -14,10 +14,10 @@ uniform mat4 gWorld;
 
 void main()
 {
-   gl_Position = u_MVP * position;
-   v_TexCoord = texCoord;
-   NormalVer = (u_MVP * vec4(Normal, 0.0)).xyz;
-   worldPos0 = (gWorld * position).xyz;
+    gl_Position = u_MVP * position;
+    v_TexCoord = texCoord;
+    NormalVer = (gWorld * vec4(Normal, 0.0)).xyz;
+    worldPos0 = (gWorld * position).xyz;
 };
 
 #shader fragment
@@ -31,28 +31,33 @@ in vec3 worldPos0;
 
 struct DirectionalLight
 {
-	vec4 Color;
-	float AmbientIntensity;
+    vec4 Color;
+    float AmbientIntensity;
     float DiffuseIntensity;
     vec3 Direction;
 };
 
-struct Material_
-{
-    sampler2D Diffuse;
-    sampler2D Specular;
-    float schiness;
-};
+struct {
+    GLuint Color;
+    GLuint AmbientIntensity;
+    GLuint DiffuseIntensity;
+    GLuint Position;
+    struct
+    {
+        GLuint Constant;
+        GLuint Linear;
+        GLuint Exp;
+    } Atten;
+} m_pointLightLocation[MAX_POINT_LIGHTS];
 
-uniform Material_ Material;
 uniform DirectionalLight gDirectionalLight;
+uniform sampler2D u_Texture;
 uniform vec3 gEyeWorldPos;
 
 void main()
 {
     float gSpecularPower = 1.0;
-    vec4 texColor = texture(Material.Diffuse, v_TexCoord);
-    vec4 specTexColor = texture(Material.Specular, v_TexCoord);
+    vec4 texColor = texture2D(u_Texture, v_TexCoord);
     vec3 normal_ = normalize(NormalVer);
 
     vec4 ambientColor = gDirectionalLight.Color * gDirectionalLight.AmbientIntensity;
@@ -68,8 +73,8 @@ void main()
     vec3 LightReflect = normalize(reflect(gDirectionalLight.Direction, normal_));
     float SpecularFactor = dot(VertexToEye, LightReflect);
     if (SpecularFactor > 0) {
-        float gMatSpecularIntensity = 4.0f;
-        specularColor = vec4(gDirectionalLight.Color * specTexColor) * gMatSpecularIntensity * SpecularFactor;
+        float gMatSpecularIntensity = 2.0f;
+        specularColor = vec4(gDirectionalLight.Color) * gMatSpecularIntensity * SpecularFactor;
     }
     color = texColor * (ambientColor + diffuseColor + specularColor);
 };

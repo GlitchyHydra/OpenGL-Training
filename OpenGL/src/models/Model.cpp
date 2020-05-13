@@ -2,28 +2,13 @@
 
 #include <iostream>
 
-Model::Model(std::string& path) :
+Model::Model(const std::string& path) :
     mFilePath(path)
 {
     loadModel();
 }
 
-void Model::processNode(aiNode* node, const aiScene* scene)
-{
-    // обработать все полигональные сетки в узле(если есть)
-    for (unsigned int i = 0; i < node->mNumMeshes; i++)
-    {
-        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        meshes.push_back(processMesh(mesh, scene));
-    }
-    // выполнить ту же обработку и для каждого потомка узла
-    for (unsigned int i = 0; i < node->mNumChildren; i++)
-    {
-        processNode(node->mChildren[i], scene);
-    }
-}
-
-void Model::loadModel() 
+void Model::loadModel()
 {
     Assimp::Importer import;
     const aiScene* scene = import.ReadFile(mFilePath, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -37,49 +22,85 @@ void Model::loadModel()
     processNode(scene->mRootNode, scene);
 }
 
-Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
+void Model::processNode(aiNode* node, const aiScene* scene)
 {
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
-    std::vector<Texture> textures;
+    // обработать все полигональные сетки в узле(если есть)
+    meshes.resize(scene->mNumMeshes);
+    for (unsigned int i = 0; i < meshes.size(); i++)
+    {
+        processMesh(scene->mMeshes[i], scene, meshes[i]);
+    }
 
+    textures.resize(scene->mNumMaterials);
+    InitTextures(scene, mFilePath);
+}
+
+void Model::processMesh(aiMesh* ai_Mesh, const aiScene* scene, Mesh& mesh)
+{
+    mesh.matInd = ai_Mesh->mMaterialIndex;
     //verticies
-    for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+    for (unsigned int i = 0; i < ai_Mesh->mNumVertices; i++)
     {
         Vertex vertex;
-        glm::vec3 vectorPosition(mesh->mVertices[i].x,
-            mesh->mVertices[i].y, mesh->mVertices[i].z);
-        glm::vec3 vectorNormal (mesh->mNormals[i].x,
-            mesh->mNormals[i].y, mesh->mNormals[i].z);
+        glm::vec3 vectorPosition(ai_Mesh->mVertices[i].x,
+            ai_Mesh->mVertices[i].y, ai_Mesh->mVertices[i].z);
+        glm::vec3 vectorNormal (ai_Mesh->mNormals[i].x,
+            ai_Mesh->mNormals[i].y, ai_Mesh->mNormals[i].z);
         glm::vec2 texCoords(0.f, 0.f);
-        if (mesh->mTextureCoords[0])
+        if (ai_Mesh->mTextureCoords[0])
         {
-            texCoords.x = mesh->mTextureCoords[0][i].x;
-            texCoords.y = mesh->mTextureCoords[0][i].y;
+            texCoords.x = ai_Mesh->mTextureCoords[0][i].x;
+            texCoords.y = ai_Mesh->mTextureCoords[0][i].y;
         }
 
-        vertices.push_back({vectorPosition, vectorNormal, texCoords});
+        mesh.vertices.push_back({vectorPosition, vectorNormal, texCoords});
     }
 
     //indicies
-    for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+    for (unsigned int i = 0; i < ai_Mesh->mNumFaces; i++)
     {
-        aiFace& face = mesh->mFaces[i];
+        aiFace& face = ai_Mesh->mFaces[i];
         for (unsigned int j = 0; j < face.mNumIndices; j++)
-            indices.push_back(face.mIndices[j]);
+            mesh.indices.push_back(face.mIndices[j]);
     }
 
-    //different texures: diffuse and etc.
-    if (mesh->mMaterialIndex >= 0)
+    mesh.SetupMesh();
+}
+
+void Model::InitTextures(const aiScene* scene, const std::string& Filename)
+{
+    std::string::size_type SlashIndex = Filename.find_last_of("/");
+    std::string Dir;
+
+    if (SlashIndex == std::string::npos)
     {
-        aiMaterial* material = (scene->mMaterials[mesh->mMaterialIndex]);
-        std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, TextureType(0));
-        textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-        std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, TextureType(1));
-        textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+        Dir = ".";
+    }
+    else if (SlashIndex == 0)
+    {
+        Dir = "/";
+    }
+    else {
+        Dir = Filename.substr(0, SlashIndex);
     }
 
-    return Mesh(vertices, indices, textures);
+    for (unsigned int i = 0; i < scene->mNumMaterials; i++)
+    {
+        const aiMaterial* aiMat = scene->mMaterials[i];
+        textures[i] = NULL;
+        if (aiMat->GetTextureCount(aiTextureType_DIFFUSE) > 0)
+        {
+            aiString Path;
+            //other parameters in Func GetTexture is NULL
+            bool getRes = aiMat->GetTexture(aiTextureType_DIFFUSE, 0, &Path);
+            if (getRes == AI_SUCCESS)
+            {
+                std::string FullPath = Dir + "/" + Path.data;
+                textures[i] = new Texture(FullPath.c_str(), i, TextureType::DIFFUSE );
+                //textures[i]->Bind();
+            }
+        }
+    }
 }
 
 std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType aiType, TextureType typeName)
@@ -91,20 +112,19 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
         aiString str;
         mat->GetTexture(aiType, i, &str);
         std::cout << "texture: " << str.C_Str() << std::endl;
-        Texture texture(str.C_Str());
-        //texture.type = typeName;
-        //texture.path = str;
-        textures.push_back(texture);
+        textures.push_back(Texture(str.C_Str(), i % 33));
     }
 
     return textures;
 }
 
-void Model::Draw(Shader shader, Renderer renderer)
+void Model::Draw(Shader& shader, const Renderer& renderer) const
 {
     for (auto& mesh : meshes) {
-
-        std::cout << mesh.vertices.size() << std::endl;
+        mesh.Bind();
+        this->textures[mesh.matInd]->Bind();
+        this->textures[mesh.matInd]->SetTexture(shader);
         renderer.Draw(mesh.va, mesh.ib, shader);
+        mesh.va.Unbind();
     }
 }

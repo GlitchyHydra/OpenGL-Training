@@ -9,12 +9,17 @@ namespace My_OpenGL {
 
 	glm::mat4& Camera::GetView() const
 	{
-        target = glm::vec3(pitch, yaw, target.z);
         view = glm::lookAt(position,
                            position + target,
                            up);
 		return view;
 	}
+
+    void Camera::SetEyeInShader(Shader& shader) const
+    {
+        glm::vec3 eye = position + target;
+        shader.SetUniform3f("gEyeWorldPos", eye.x, eye.y, eye.z);
+    }
 
     bool Camera::OnKeyboard(int key) 
     {

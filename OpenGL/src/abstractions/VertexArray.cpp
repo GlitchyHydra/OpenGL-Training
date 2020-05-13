@@ -6,6 +6,8 @@
 VertexArray::VertexArray()
 {
     GLCall(glGenVertexArrays(1, &m_RendererID));
+    //int size;
+    //glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
 }
 
 VertexArray::~VertexArray()
@@ -16,7 +18,6 @@ VertexArray::~VertexArray()
 void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout)
 {
     Bind();
-    vb.Bind();
     //go to drawing state
     const auto& elements = layout.GetElements();
     unsigned int offset = 0;

@@ -16,16 +16,19 @@ class Mesh
 public:
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-	std::vector<Texture> textures;
-	IndexBuffer ib;
+	unsigned int matInd;
 	VertexArray va;
+	IndexBuffer ib;
 private:
 	VertexBuffer vb;
 	VertexBufferLayout vbl;
 public:
-	Mesh(std::vector<Vertex> vert, std::vector<unsigned int> ind, std::vector<Texture> tex);
+	Mesh(std::vector<Vertex> vert, std::vector<unsigned int> ind);
+	Mesh();
 	~Mesh();
 
 	void Bind() const;
 	void SetupMesh();
+private:
+	void InitMesh();
 };

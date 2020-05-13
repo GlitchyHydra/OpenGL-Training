@@ -4,6 +4,7 @@
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
 
+
 struct Vertex {
 	glm::vec3 pos;
 	glm::vec2 tex_pos;

@@ -489,7 +489,9 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="res\shaders\Basic.shader" />
+    <None Include="res\shaders\Light.shader" />
     <None Include="res\shaders\Model.shader" />
+    <None Include="res\shaders\ModelTest.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vendor\stb_image\stb_image.h">
