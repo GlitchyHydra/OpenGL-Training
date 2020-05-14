@@ -16,9 +16,19 @@ namespace My_OpenGL {
 		BaseLight()
 		{
 			Color = glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f );
-			AmbientIntensity = 0.0f;
-			DiffuseIntensity = 0.0f;
-			SpecularIntensity = 0.5f;
+			AmbientIntensity = 0.0005f;
+			DiffuseIntensity = 0.2f;
+			SpecularIntensity = 0.3f;
+		}
+	};
+
+	struct DirectionalLight : BaseLight
+	{
+		glm::vec3 Direction{ 1000.f, 500.f, -50.0f };
+
+		DirectionalLight()
+		{
+			Direction = glm::vec3(960.0f, 550.0f, -50.0f);
 		}
 	};
 
@@ -36,19 +46,9 @@ namespace My_OpenGL {
 		PointLight()
 		{
 			Position = glm::vec3(0.0f, 0.0f, 0.0f);
-			Attenuation.Constant = 1.0f;
-			Attenuation.Linear = 0.0f;
-			Attenuation.Exp = 0.0f;
-		}
-	};
-
-	struct DirectionalLight : BaseLight
-	{
-		glm::vec3 Direction { 1000.f, 500.f, -50.0f };
-
-		DirectionalLight()
-		{
-			Direction = glm::vec3(960.0f, 650.0f, -50.0f);
+			Attenuation.Constant = 0.1f;
+			Attenuation.Linear = 0.1f;
+			Attenuation.Exp = 0.1f;
 		}
 	};
 
@@ -58,22 +58,12 @@ namespace My_OpenGL {
 		std::vector<PointLight> lightsPoint;
 
 		const unsigned int lightsDirCount = 2;
-		const unsigned int lightsPointCount = 7;
+		const unsigned int lightsPointCount = 3;
 	public:
-		Light(Shader& shader) {
-			shader.SetUniform1ui("LIGHTS_DIR_COUNT;", lightsDirCount);
-			shader.SetUniform1ui("LIGHTS_POINT_COUNT", lightsPointCount);
-			BaseLight bl;
-			lightsDir.push_back(DirectionalLight());
-			lightsDir.push_back(DirectionalLight());
-			lightsDir[0].Color = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
-			lightsDir[1].Color = glm::vec4(0.5f, 1.0f, 0.0f, 1.0f);
-			
-			/*for (unsigned int i = 0; i < lightsPointCount; i++)
-			{
-				lightsDir.push_back(DirectionalLight());
-				lightsDir[i].AmbientIntensity =
-			}*/
-		};
+		Light(Shader& shader);
+		void SetDirectLights(Shader& shader);
+		void SetPointLights(Shader& shader);
+	private:
+		
 	};
 };

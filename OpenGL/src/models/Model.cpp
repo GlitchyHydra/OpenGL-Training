@@ -103,6 +103,12 @@ void Model::InitTextures(const aiScene* scene, const std::string& Filename)
     }
 }
 
+void Model::SetModelTrans(Shader& shader) const
+{
+    totalTrans = glm::scale(glm::mat4(1.0f), scale) * glm::translate(glm::mat4(1.0f), translation);
+    shader.SetUniformMat4f("u_trans", totalTrans);
+}
+
 std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType aiType, TextureType typeName)
 {
     std::vector<Texture> textures;

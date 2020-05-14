@@ -5,23 +5,29 @@ layout(location = 0) in vec4 position;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec2 texCoord;
 
+uniform mat4 u_trans;
+uniform mat4 u_MVP;
+
 out vec2 v_texCoord;
-out vec3 shadNormal;
+out vec3 v_normal;
+out vec3 model_WP;
 
 void main()
 {
-	glPosition = u_MVP * position;
+	gl_Position = u_MVP * position;
 	v_normal = (u_MVP * vec4(normal, 0.0)).xyz;
+	model_WP = (u_trans * position).xyz;
 	v_texCoord = texCoord;
 };
 
-#shader fragmet
+#shader fragment
 #version 330 core
 
 layout(location = 0) out vec4 color;
 
 in vec2 v_texCoord;
 in vec3 v_normal;
+in vec3 model_WP;
 
 struct Material_ {
 	sampler2D Diffuse;
@@ -43,89 +49,77 @@ struct DirectLight
 	vec3 Direction;
 };
 
+struct Attenuation
+{
+	float Constant;
+	float Linear;
+	float Exp;
+};
+
 struct PointLight
 {
 	BaseLight Base;
 	vec3 Position;
 
-	struct {
-		float Constant;
-		float Linear;
-		float Exp;
-	} Atten;
+	Attenuation Atten;
 };
 
+const unsigned int LIGHTS_DIR_COUNT = 2u;
+const unsigned int LIGHTS_POINT_COUNT = 3u;
+
+uniform vec3 u_CameraPos;
 uniform Material_ Material;
-uniform mat4 Model;
-uniform vec3 eyePos;
-uniform unsigned int LIGHTS_DIR_COUNT;
-uniform unsigned int LIGHTS_POINT_COUNT;
-uniform PointLight m_pointLight[LIGHTS_COUNT];
-uniform DirectLight m_directLight[LIGHTS_COUNT];
+uniform DirectLight m_directLight[LIGHTS_DIR_COUNT];
+uniform PointLight m_pointLight[LIGHTS_POINT_COUNT];
 
-vec4 CalcDirLights(vec4 texDiffuse, vec4 texSpecular, vec3 normal, vec3 vertexToEye)
+vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, vec3 Normal)
 {
-	vec4 color_out = texDiffuse;
-	for (unsigned int i = 0; i < LIGHTS_DIR_COUNT; i++)
+	vec4 AmbientColor = Light.Color * Light.AmbientIntensity;
+
+	float DiffuseFactor = dot(-LightDirection, Normal);
+	vec4 DiffuseColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+	vec4 SpecularColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+
+	if (DiffuseFactor > 0)
 	{
-		vec3 ambientColor = m_directLight[i].Base.Color * m_directLight[i].Base.AmbientIntensity;
-		vec3 direction_n = normalize(-m_directLight[i].Direction);
-		
-		float diff_factor = dot(normal, direction_n);
-		vec4 diffColor = vec4(0.0, 0.0, 0.0, 0.0);
-		if (diff_factor > 0)
-		{
-			diffColor = m_directLight[i].Base.Color * m_directLight[i].Base.DiffuseIntensity * diff_factor;
-		}
+		DiffuseColor = Light.Color * Light.DiffuseIntensity * DiffuseFactor;
 
-		vec3 reflectDir = normalize(reflect(-direction_n, normal));
-		float spec_factor = dot(vertexToEye, reflectDir);
-		vec4 specColor = vec4(0.0, 0.0, 0.0, 0.0);
-		if (spec_factor > 0)
-		{
-			specColor = texSpecular * m_directLight[i].Base.Color * m_directLight[i].Base.SpecularIntensity * spec_factor;
+		vec3 VertexToEye = normalize(u_CameraPos - model_WP);
+		vec3 LightReflect = normalize(reflect(LightDirection, Normal));
+		float SpecularFactor = dot(VertexToEye, LightReflect);
+		if (SpecularFactor > 0) {
+			SpecularColor = vec4(Light.Color * Light.SpecularIntensity * SpecularFactor);
 		}
+	}
 
-		color_out += (ambientColor + diffColor + specColor);
+	return (AmbientColor + DiffuseColor + SpecularColor);
+}
+
+vec4 CalcDirLights(vec3 Normal, vec4 texSpecular)
+{
+	vec4 color_out = vec4(0, 0, 0, 0);
+	for (unsigned int i = 0u; i < LIGHTS_DIR_COUNT; i++)
+	{
+		color_out += CalcLightInternal(m_directLight[i].Base, m_directLight[i].Direction, Normal);
 	}
 	return color_out;
 }
 
-vec4 CalcPointLights(vec4 texDiffuse, vec4 texSpecular, vec3 normal, vec3 vertexToEye)
+vec4 CalcPointLights(vec3 Normal, vec4 texSpecular)
 {
 	vec4 color_out = vec4(0.0, 0.0, 0.0, 0.0);
-	vec4 diffColor = texture(Material.Diffuse, v_texCoord);
-	vec4 specColor = texture(Material.Specular, v_texCoord);
 
-	color = diffColor;
-	
-	for (unsigned int i = 0; i < LIGHTS_POINT_COUNT; i++)
+	for (unsigned int i = 0u; i < LIGHTS_POINT_COUNT; i++)
 	{
-		vec3 ambientColor = m_directLight[i].Base.Color * m_pointLight[i].Base.AmbientIntensity;
-		vec3 direction_n = normalize(-m_directLight[i].Direction);
+		vec3 LightDirection = model_WP - m_pointLight[i].Position;
+		float Distance = length(LightDirection);
+		LightDirection = normalize(LightDirection);
 
-		float diff_factor = dot(normal, direction_n);
-		vec4 diffColor = vec4(0.0, 0.0, 0.0, 0.0);
-		if (diff_factor > 0)
-		{
-			diffColor = m_pointLight[i].Base.Color * m_pointLight[i].Base.DiffuseIntensity * diff_factor;
-		}
-
-		vec3 reflectDir = normalize(reflect(-direction_n, normal));
-		float spec_factor = dot(vertexToEye, reflectDir);
-		vec4 specColor = vec4(0.0, 0.0, 0.0, 0.0);
-		float Attenuation;
-		if (spec_factor > 0)
-		{
-			float Distance = length(m_pointLight[i].Position - FragPos);
-			specColor = texSpecular * m_pointLight[i].Color * m_pointLight[i].Base.SpecularIntensity * spec_factor;
-			float Attenuation = m_pointLight[i].Atten.Constant +
-				m_pointLight[i].Atten.Linear * Distance +
-				m_pointLight[i].Atten.Exp * Distance * Distance;
-			specColor /= Attenuation;
-		}
-
-		color_out += (ambientColor + diffColor + specColor);
+		vec4 color_intermediate = CalcLightInternal(m_pointLight[i].Base, LightDirection, Normal);
+		float Attenuation = m_pointLight[i].Atten.Constant +
+			m_pointLight[i].Atten.Linear * Distance +
+			m_pointLight[i].Atten.Exp * Distance * Distance;
+		color_out += (color_intermediate / Attenuation);
 	}
 
 	return color_out;
@@ -133,12 +127,10 @@ vec4 CalcPointLights(vec4 texDiffuse, vec4 texSpecular, vec3 normal, vec3 vertex
 
 void main()
 {
-	float pos = 0;
-	vec4 texDiffuse = texture(Material.Diffuse);
-	vec4 texSpecular = texture(Material.Specular);
-	vec3 normal = normalize(v_normal);
-	vec4 vertexToEye = normalize(eyePos - pos);
-	vec4 dirColor   = CalcDirLights  (texDiffuse, texSpecular, normal, vertexToEye);
-	vec4 pointColor = CalcPointLights(texDiffuse, texSpecular, normal, vertexToEye);
-	color = texDiffuse * (dirColor + pointColor);
+	vec4 texSpecular = texture(Material.Specular, v_texCoord);
+	vec3 Normal = normalize(v_normal);
+	vec4 ColorLight = CalcDirLights(Normal, texSpecular);
+	
+
+	color = texture2D(Material.Diffuse, v_texCoord) * ColorLight;
 };

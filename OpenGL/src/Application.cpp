@@ -23,19 +23,19 @@ int main(void)
     GLFWwindow* window = cfg.GetWindow();
     Renderer renderer;
 
-    Model model("res/models/nanosuit/nanosuit.obj");
+    Model model("res/models/E4/E 45 Aircraft_obj.obj");
 
-    Shader shader("res/shaders/ModelTest.shader");
+    Shader shader("res/shaders/Model.shader");
     shader.Bind();
     scene.camera.SetEyeInShader(shader);
+    model.SetModelTrans(shader);
 
-    //My_OpenGL::Light light(shader);
+    My_OpenGL::Light light(shader);
+    light.SetDirectLights(shader);
+    light.SetPointLights(shader);
 
     shader.Unbind();
     scene.camera.Print();
-    glm::vec3 translationA(960.f, 540.f, 10.f);
-    glm::vec3 translationB(260.f, 540.f, 10.f);
-    glm::vec3 scaleA(30.f, 30.f, 30.f);
 
     glEnable(GL_DEPTH_TEST);
     /* Loop until the user closes the window */
@@ -47,14 +47,14 @@ int main(void)
         
         {
             shader.Bind();
-            glm::mat4 modelTs = glm::translate(glm::mat4(1.0f), translationA);
+            glm::mat4 modelTs = glm::translate(glm::mat4(1.0f), model.translation);
             //model = glm::rotate(model, -45.0f, translationA);
-            modelTs[0][0] = scaleA.x;
-            modelTs[1][1] = scaleA.y;
-            modelTs[2][2] = scaleA.z;
+            modelTs[0][0] = model.scale.x;
+            modelTs[1][1] = model.scale.y;
+            modelTs[2][2] = model.scale.z;
             scene.setView(modelTs, shader);
+            model.SetModelTrans(shader);
 
-            modelTs = glm::translate(glm::mat4(1.0f), translationB);
             model.Draw(shader, renderer);
             //glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
         }
@@ -65,10 +65,12 @@ int main(void)
 
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
         {
-            ImGui::Begin("Hello, world!");                          
-            ImGui::SliderFloat3("TranslationA", &translationA.x, 0.0f, 1920.0f);        
-            ImGui::SliderFloat3("ScaleA", &scaleA.x, 0.1f, 50.0f);
-            ImGui::SliderFloat3("RotationCamera", &scene.camera.target.x, -2.0f, 2.0f);
+            ImGui::Begin("Hello, world!");    
+            ImGui::Text("Model");
+            ImGui::SliderFloat3("TranslationA", &model.translation.x, 0.0f, 1920.0f);        
+            ImGui::SliderFloat3("ScaleA", &model.scale.x, 0.1f, 100.0f);
+            ImGui::Text("Camera");
+            ImGui::SliderFloat3("RotationCamera", &scene.camera.target.x, -12.0f, 12.0f);
             ImGui::SliderFloat3("MoveCamera", &scene.camera.position.x, -1920.0f, 1920.0f);
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
             ImGui::End();

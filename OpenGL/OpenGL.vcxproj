@@ -168,6 +168,7 @@
   <ItemGroup>
     <ClCompile Include="src\abstractions\IndexBuffer.cpp" />
     <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\models\Light.cpp" />
     <ClCompile Include="src\models\Mesh.cpp" />
     <ClCompile Include="src\models\Model.cpp" />
     <ClCompile Include="src\abstractions\Renderer.cpp" />

@@ -15,11 +15,11 @@ private:
 	std::vector<Mesh> meshes;
 	std::vector<Texture*> textures;
 	const std::string& mFilePath;
+	mutable glm::mat4 totalTrans;
+public:
+	glm::vec3 translation = glm::vec3(960.f, 540.f, 10.f);
 	glm::mat4 rotation;
-	//matrix with 1, translations coords
-	glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-	//scale num, zero in right column
-	glm::mat4 scale = glm::translate(glm::mat4(2.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+	glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
 
 public :
 	Model(const std::string& path);
@@ -27,6 +27,8 @@ public :
 
 	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, TextureType typeName);
 	void Draw(Shader& shader, const Renderer& renderer) const;
+
+	void SetModelTrans(Shader& shader) const;
 private:
 	void loadModel();
 	void processNode(aiNode* node, const aiScene* scene);

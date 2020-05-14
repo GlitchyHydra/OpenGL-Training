@@ -18,7 +18,7 @@ namespace My_OpenGL {
     void Camera::SetEyeInShader(Shader& shader) const
     {
         glm::vec3 eye = position + target;
-        shader.SetUniform3f("gEyeWorldPos", eye.x, eye.y, eye.z);
+        shader.SetUniform3f("u_CameraPos", eye.x, eye.y, eye.z);
     }
 
     bool Camera::OnKeyboard(int key) 
