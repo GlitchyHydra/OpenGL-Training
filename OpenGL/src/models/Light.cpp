@@ -8,10 +8,12 @@ namespace My_OpenGL {
 		lightsDir.resize(lightsDirCount);
 		lightsDir[1].Direction = glm::vec3(960.0f, 850.0f, -50.0f);
 		lightsPoint.resize(lightsPointCount);
-		lightsPoint[1].Color = glm::vec4(1.0f, 1.0f, 1.0f, 0.2f);
-		lightsPoint[0].Position = glm::vec3(650.0f, 740.0f, 0.0f);
+		lightsPoint[0].Position = glm::vec3(65.0f, 740.0f, 0.0f);
 		lightsPoint[1].Position = glm::vec3(650.0f, 550.0f, 0.0f);
 		lightsPoint[2].Position = glm::vec3(1150.0f, 540.0f, 0.0f);
+		lightsPoint[0].AmbientIntensity = 0.0000001f;;
+		lightsPoint[1].AmbientIntensity = 0.0000001f;
+		lightsPoint[2].AmbientIntensity = 0.0000001f;;
 	}
 
 	void Light::SetDirectLights(Shader& shader)
@@ -62,13 +64,13 @@ namespace My_OpenGL {
 			shader.SetUniform3f(Name, lightsPoint[i].Position.x, lightsPoint[i].Position.y,
 				lightsPoint[i].Position.z);
 
-			snprintf(Name, sizeof(Name), "m_pointLight[%d].Direction", i);
+			snprintf(Name, sizeof(Name), "m_pointLight[%d].Atten.Constant", i);
 			shader.SetUniform1f(Name, lightsPoint[i].Attenuation.Constant);
 
-			snprintf(Name, sizeof(Name), "m_pointLight[%d].Direction", i);
+			snprintf(Name, sizeof(Name), "m_pointLight[%d].Atten.Linear", i);
 			shader.SetUniform1f(Name, lightsPoint[i].Attenuation.Linear);
 
-			snprintf(Name, sizeof(Name), "m_pointLight[%d].Direction", i);
+			snprintf(Name, sizeof(Name), "m_pointLight[%d].Atten.Exp", i);
 			shader.SetUniform1f(Name, lightsPoint[i].Attenuation.Exp);
 		}
 	}

@@ -46,9 +46,9 @@ namespace My_OpenGL {
 		PointLight()
 		{
 			Position = glm::vec3(0.0f, 0.0f, 0.0f);
-			Attenuation.Constant = 0.1f;
-			Attenuation.Linear = 0.1f;
-			Attenuation.Exp = 0.1f;
+			Attenuation.Constant = 0.0001f;
+			Attenuation.Linear = 0.00001f;
+			Attenuation.Exp = 0.00001f;
 		}
 	};
 
