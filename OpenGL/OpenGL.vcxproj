@@ -167,16 +167,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\abstractions\IndexBuffer.cpp" />
-    <ClCompile Include="src\Camera.cpp" />
-    <ClCompile Include="src\models\Light.cpp" />
-    <ClCompile Include="src\models\Mesh.cpp" />
-    <ClCompile Include="src\models\Model.cpp" />
+    <ClCompile Include="src\Scene\Camera\Camera.cpp" />
+    <ClCompile Include="src\Scene\Light\Light.cpp" />
+    <ClCompile Include="src\Scene\Mesh\Mesh.cpp" />
+    <ClCompile Include="src\Scene\Model\Model.cpp" />
     <ClCompile Include="src\abstractions\Renderer.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\abstractions\Shader.cpp" />
-    <ClCompile Include="src\models\Scene.cpp" />
+    <ClCompile Include="src\Scene\Scene.cpp" />
+    <ClCompile Include="src\Scene\Skybox\Skybox.cpp" />
     <ClCompile Include="src\OpenGL_config.cpp" />
-    <ClCompile Include="src\primitives\Cube.cpp" />
+    <ClCompile Include="src\Scene\Primitive\Cube.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_demo.cpp" />
@@ -188,12 +189,12 @@
     <ClCompile Include="src\abstractions\VertexBuffer.cpp" />
     <ClCompile Include="src\abstractions\VertexArray.cpp" />
     <ClCompile Include="src\abstractions\Texture.cpp" />
+    <ClCompile Include="src\Window\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
     <None Include="res\shaders\Light.shader" />
     <None Include="res\shaders\Model.shader" />
-    <None Include="res\shaders\ModelTest.shader" />
     <None Include="src\vendor\glm\detail\func_common.inl" />
     <None Include="src\vendor\glm\detail\func_common_simd.inl" />
     <None Include="src\vendor\glm\detail\func_exponential.inl" />
@@ -332,16 +333,22 @@
     <None Include="src\vendor\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Camera.h" />
-    <ClInclude Include="src\models\Light.h" />
-    <ClInclude Include="src\models\Mesh.h" />
-    <ClInclude Include="src\models\Model.h" />
+    <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\EntryPoint.cpp" />
+    <ClInclude Include="src\Scene\Camera\Camera.h" />
+    <ClInclude Include="src\Event\ApplicationEvent.h" />
+    <ClInclude Include="src\Event\Event.h" />
+    <ClInclude Include="src\Event\KeyEvent.h" />
+    <ClInclude Include="src\Event\MouseEvent.h" />
+    <ClInclude Include="src\Scene\Light\Light.h" />
+    <ClInclude Include="src\Scene\Mesh\Mesh.h" />
+    <ClInclude Include="src\Scene\Model\Model.h" />
     <ClInclude Include="src\abstractions\Shader.h" />
     <ClInclude Include="src\abstractions\IndexBuffer.h" />
     <ClInclude Include="src\abstractions\Renderer.h" />
-    <ClInclude Include="src\models\Scene.h" />
-    <ClInclude Include="src\OpenGL_config.h" />
-    <ClInclude Include="src\primitives\Cube.h" />
+    <ClInclude Include="src\Scene\Scene.h" />
+    <ClInclude Include="src\Scene\Skybox\Skybox.h" />
+    <ClInclude Include="src\Scene\Primitive\Cube.h" />
     <ClInclude Include="src\vendor\glm\common.hpp" />
     <ClInclude Include="src\vendor\glm\detail\compute_common.hpp" />
     <ClInclude Include="src\vendor\glm\detail\compute_vector_relational.hpp" />
@@ -637,6 +644,7 @@
     <ClInclude Include="src\abstractions\VertexArray.h" />
     <ClInclude Include="src\abstractions\VertexBufferLayout.h" />
     <ClInclude Include="src\abstractions\Texture.h" />
+    <ClInclude Include="src\Window\Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

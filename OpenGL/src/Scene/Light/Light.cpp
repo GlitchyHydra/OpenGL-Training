@@ -74,4 +74,12 @@ namespace My_OpenGL {
 			shader.SetUniform1f(Name, lightsPoint[i].Attenuation.Exp);
 		}
 	}
+
+	void Light::SetPositionAndColor(Shader& shader, unsigned int index)
+	{
+		shader.SetUniform3f("light_pos", lightsPoint[index].Position.x,
+			lightsPoint[index].Position.y, lightsPoint[index].Position.z);
+		shader.SetUniform3f("light_color", lightsPoint[index].Color.x,
+			lightsPoint[index].Color.y, lightsPoint[index].Color.z);
+	}
 };

@@ -1,50 +1,107 @@
-﻿#include "OpenGL_config.h"
+﻿#include "Application.h"
+
 #include <iostream>
 #include <string>
-
-#include "Renderer.h"
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
-#include "VertexArray.h"
-#include "Shader.h"
-#include "VertexBufferLayout.h"
-#include "Texture.h"
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "models/Light.h"
-#include "models/Model.h"
+namespace My_OpenGL {
 
+#define BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 
+    Application* CreateApplication()
+    {
+        return new Application();
+    }
+
+    Application::Application()
+    {
+        m_Window = std::unique_ptr<Window>(Window::Create());
+        m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
+
+        renderer = std::make_unique<Renderer>();
+        
+        if (glewInit() != GLEW_OK) {
+            std::cout << "error";
+        }
+
+        shader = new Shader("res/shaders/Model.shader");
+        shader->Bind();
+        m_Scene = std::unique_ptr<Scene>(Scene::CreateScene(*shader));
+    }
+
+    Application::~Application() {
+
+    }
+
+    /*void Application::PushLayer(Layer* layer)
+    {
+        m_LayerStack.PushLayer(layer);
+    }
+
+    void Application::PushOverlay(Layer* layer)
+    {
+        m_LayerStack.PopOverlay(layer);
+    }
+    */
+    void Application::OnEvent(Event& e)
+    {
+        EventDispatcher dispatcher(e);
+        dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
+
+        //VIPERA_CORE_TRACE("(0)", e);
+
+        /*for (auto it = m_LayerStack.end(); it != m_LayerStack.begin())
+        {
+            (*--it)->OnEvent(e);
+            if (e.Handled)
+                break;
+        }*/
+    }
+
+    void Application::Run() {
+        //shader->Unbind();
+        glEnable(GL_DEPTH_TEST);
+
+        while (m_Running)
+        {
+            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            /*for (Layer* layer : m_LayerStack)
+                layer->OnUpdate();*/
+            renderer->Clear();
+            Model* model = m_Scene->GetModels()[0];
+
+            glm::mat4 modelTs = glm::translate(glm::mat4(1.0f), model->translation);
+            //model = glm::rotate(model, -45.0f, translationA);
+            modelTs[0][0] = model->scale.x;
+            modelTs[1][1] = model->scale.y;
+            modelTs[2][2] = model->scale.z;
+            m_Scene->setView(modelTs, *shader);
+
+            model->SetModelTrans(*shader);
+
+            model->Draw(*shader, *renderer);
+            //renderer->Draw(model->va, ib, shader);
+
+            m_Window->OnUpdate();
+        }
+    }
+
+    bool Application::OnWindowClose(WindowCloseEvent& e)
+    {
+        m_Running = false;
+        return true;
+    }
+}
+/*
 int main(void)
 {
-    My_OpenGL::Config cfg;
-    GLFWwindow* window = cfg.GetWindow();
-    Renderer renderer;
+    //model.SetModelTrans(shader);
 
-    Model model("res/models/E4/E 45 Aircraft_obj.obj");
-
-    Shader shader("res/shaders/Model.shader");
-    shader.Bind();
-    scene.camera.SetEyeInShader(shader);
-    model.SetModelTrans(shader);
-
-    My_OpenGL::Light light(shader);
-    light.SetDirectLights(shader);
-    light.SetPointLights(shader);
-
-    shader.Unbind();
-    scene.camera.Print();
-
-    glEnable(GL_DEPTH_TEST);
-    /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
+    while (true)
     {
-        /* Render here */
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        renderer.Clear();
-        
         {
             shader.Bind();
             glm::mat4 modelTs = glm::translate(glm::mat4(1.0f), model.translation);
@@ -58,31 +115,30 @@ int main(void)
             model.Draw(shader, renderer);
             //glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
         }
-
+        
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
         {
-            ImGui::Begin("Hello, world!");    
-            ImGui::Text("Model");
-            ImGui::SliderFloat3("TranslationA", &model.translation.x, 0.0f, 1920.0f);        
-            ImGui::SliderFloat3("ScaleA", &model.scale.x, 0.1f, 100.0f);
-            ImGui::Text("Camera");
-            ImGui::SliderFloat3("RotationCamera", &scene.camera.target.x, -12.0f, 12.0f);
-            ImGui::SliderFloat3("MoveCamera", &scene.camera.position.x, -1920.0f, 1920.0f);
+            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+            ImGui::SliderFloat3("Translation", (&model.translation.x), 0.0f, 1920.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+            ImGui::SliderFloat3("Scale", (&model.scale.x), 1.0f, 1000.0f);
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
             ImGui::End();
         }
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        glfwSwapBuffers(window);
-
-        /* Poll for and process events */
-        glfwPollEvents();
     }
+    return 0;
+}*/
+
+int main(int argc, char** argv) {
+    auto app = My_OpenGL::CreateApplication();
+    app->Run();
+    delete app;
     return 0;
 }

@@ -63,6 +63,8 @@ namespace My_OpenGL {
 		Light(Shader& shader);
 		void SetDirectLights(Shader& shader);
 		void SetPointLights(Shader& shader);
+		void SetPositionAndColor(Shader& shader, unsigned int index);
+		void Draw(Shader& shader);
 	private:
 		
 	};

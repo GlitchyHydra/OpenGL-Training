@@ -116,10 +116,10 @@ vec4 CalcPointLights(vec3 Normal, vec4 texSpecular)
 		LightDirection = normalize(LightDirection);
 
 		vec4 color_intermediate = CalcLightInternal(m_pointLight[i].Base, LightDirection, Normal);
-		float Attenuation = m_pointLight[i].Atten.Constant +
-			m_pointLight[i].Atten.Linear * Distance +
-			m_pointLight[i].Atten.Exp * Distance * Distance;
-		color_out += (color_intermediate / Attenuation);
+		float Attenuation_coeff = m_pointLight[i].Atten.Constant +
+			                      m_pointLight[i].Atten.Linear * Distance +
+			                      m_pointLight[i].Atten.Exp * Distance * Distance;
+		color_out += (color_intermediate / Attenuation_coeff);
 	}
 
 	return color_out;
@@ -130,7 +130,7 @@ void main()
 	vec4 texSpecular = texture(Material.Specular, v_texCoord);
 	vec3 Normal = normalize(v_normal);
 	vec4 ColorLight = CalcDirLights(Normal, texSpecular);
-	
+	ColorLight += CalcPointLights(Normal, texSpecular);
 
 	color = texture2D(Material.Diffuse, v_texCoord) * ColorLight;
 };

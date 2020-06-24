@@ -1,4 +1,4 @@
-#include "Mesh.h"
+#include "Scene/Mesh/Mesh.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -19,7 +19,7 @@ private:
 public:
 	glm::vec3 translation = glm::vec3(960.f, 540.f, 10.f);
 	glm::mat4 rotation;
-	glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 scale = glm::vec3(100.0f, 100.0f, 100.0f);
 
 public :
 	Model(const std::string& path);
