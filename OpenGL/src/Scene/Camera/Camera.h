@@ -35,6 +35,12 @@ namespace My_OpenGL {
 		glm::mat4& GetView() const;
 		void Print() const;
 		void SetEyeInShader(Shader& shader) const;
-		//static void keyboard_callback_glfw(GLFWwindow* window, int key, int scancode, int action, int mode);
+
+		void Right() { this->position.x -= 10; }
+		void Left() { this->position.x += 10; }
+		void Up() { this->position.y -= 10; };
+		void Down() { this->position.y += 10; };
+		void Forward();
+		void Back();
 	};
 };

@@ -334,7 +334,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
-    <ClInclude Include="src\EntryPoint.cpp" />
     <ClInclude Include="src\Scene\Camera\Camera.h" />
     <ClInclude Include="src\Event\ApplicationEvent.h" />
     <ClInclude Include="src\Event\Event.h" />

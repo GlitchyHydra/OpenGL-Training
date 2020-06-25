@@ -86,7 +86,7 @@ namespace My_OpenGL {
 				}
 				case GLFW_RELEASE:
 				{
-					KeyPressedEvent event(key, 0);
+					KeyReleasedEvent event(key);
 					data.EventCallback(event);
 					break;
 				}

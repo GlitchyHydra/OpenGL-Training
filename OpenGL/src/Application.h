@@ -20,6 +20,7 @@ namespace My_OpenGL {
 		//void PushOverlay(Layer* layer);
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
+		bool OnKeyReleased(KeyReleasedEvent& e);
 
 		std::unique_ptr<Window> m_Window;
 		std::unique_ptr<Renderer> renderer;

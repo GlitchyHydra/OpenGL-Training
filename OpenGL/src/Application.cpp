@@ -48,7 +48,9 @@ namespace My_OpenGL {
     {
         EventDispatcher dispatcher(e);
         dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
+        dispatcher.Dispatch<KeyReleasedEvent>(BIND_EVENT_FN(Application::OnKeyReleased));
 
+        //std::cout << e.ToString() << std::endl;
         //VIPERA_CORE_TRACE("(0)", e);
 
         /*for (auto it = m_LayerStack.end(); it != m_LayerStack.begin())
@@ -73,14 +75,16 @@ namespace My_OpenGL {
             renderer->Clear();
             Model* model = m_Scene->GetModels()[0];
 
-            glm::mat4 modelTs = glm::translate(glm::mat4(1.0f), model->translation);
-            //model = glm::rotate(model, -45.0f, translationA);
-            modelTs[0][0] = model->scale.x;
-            modelTs[1][1] = model->scale.y;
-            modelTs[2][2] = model->scale.z;
-            m_Scene->setView(modelTs, *shader);
+            {
+                glm::mat4 modelTs = glm::translate(glm::mat4(1.0f), model->translation);
+                //model = glm::rotate(model, -45.0f, translationA);
+                modelTs[0][0] = model->scale.x;
+                modelTs[1][1] = model->scale.y;
+                modelTs[2][2] = model->scale.z;
+                m_Scene->setView(modelTs, *shader);
 
-            model->SetModelTrans(*shader);
+                model->SetModelTrans(*shader);
+            }
 
             model->Draw(*shader, *renderer);
             //renderer->Draw(model->va, ib, shader);
@@ -94,28 +98,41 @@ namespace My_OpenGL {
         m_Running = false;
         return true;
     }
+
+    bool Application::OnKeyReleased(KeyReleasedEvent& e)
+    {
+        switch (e.GetKeyCode()) {
+            case GLFW_KEY_W:
+            {
+                //std::cout << "W" << std::endl;
+                m_Scene->GetCamera()->Up();
+            } break;
+            case GLFW_KEY_S:
+            {
+                //std::cout << "S" << std::endl;
+                m_Scene->GetCamera()->Down();
+            } break;
+            case GLFW_KEY_A:
+            {
+                //std::cout << "A" << std::endl;
+                m_Scene->GetCamera()->Left();
+            } break;
+            case GLFW_KEY_D:
+            {
+                //std::cout << "D" << std::endl;
+                m_Scene->GetCamera()->Right();
+            } break;
+        }
+
+        //m_Scene->GetCamera()->position.x;
+        return true;
+    }
 }
 /*
 int main(void)
 {
-    //model.SetModelTrans(shader);
-
     while (true)
     {
-        {
-            shader.Bind();
-            glm::mat4 modelTs = glm::translate(glm::mat4(1.0f), model.translation);
-            //model = glm::rotate(model, -45.0f, translationA);
-            modelTs[0][0] = model.scale.x;
-            modelTs[1][1] = model.scale.y;
-            modelTs[2][2] = model.scale.z;
-            scene.setView(modelTs, shader);
-            model.SetModelTrans(shader);
-
-            model.Draw(shader, renderer);
-            //glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-        }
-        
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
