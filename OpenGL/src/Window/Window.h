@@ -38,8 +38,10 @@ namespace My_OpenGL {
 
 		void OnUpdate();
 
-		unsigned int GetWidth() const { m_Data.Width; };
-		unsigned int GetHeight() const { m_Data.Height; };
+		unsigned int GetWidth() const { return m_Data.Width; };
+		unsigned int GetHeight() const { return m_Data.Height; };
+
+		inline virtual void* GetNativeWindow() const { return m_Window; }
 
 		//Window attributes
 		inline void SetEventCallback(const EventCallbackFn& callback) { m_Data.EventCallback = callback; }
