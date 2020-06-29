@@ -1,0 +1,10 @@
+[submodule "OpenGL/vendor/GLFW"]
+	path = OpenGL/vendor/GLFW
+	url = https://github.com/GlitchyHydra/glfw
+[submodule "OpenGL/vendor/assimp"]
+	path = OpenGL/vendor/assimp
+	url = https://github.com/GlitchyHydra/assimp
+[submodule "assimp"]
+	path = OpenGL/vendor/assimp
+	url = https://github.com/GlitchyHydra/assimp
+	branch = assimp_5.0_release

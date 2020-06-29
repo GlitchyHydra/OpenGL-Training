@@ -8,7 +8,7 @@
 #include "Event/KeyEvent.h"
 #include "Event/MouseEvent.h"
 
-#include "Renderer.h"
+#include "abstractions/Renderer.h"
 #include <GLFW/glfw3.h>
 
 namespace My_OpenGL {

@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "Shader.h"
+#include "abstractions/Shader.h"
 #include "Scene/Camera/Camera.h"
 #include "Scene/Model/Model.h"
 #include "Scene/Light/Light.h"

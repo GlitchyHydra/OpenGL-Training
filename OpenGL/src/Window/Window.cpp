@@ -17,6 +17,11 @@ namespace My_OpenGL {
 		return new Window(props);
 	}
 
+	Window::Window(const WindowProps& props)
+	{
+		Init(props);
+	}
+
 	void Window::Init(const WindowProps& props)
 	{
 		m_Data.Title = props.Title;
@@ -49,6 +54,10 @@ namespace My_OpenGL {
 		}
 
 		glfwMakeContextCurrent(m_Window);
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+			std::cout << "error";
+		}
+
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
 
@@ -141,11 +150,6 @@ namespace My_OpenGL {
 	{
 		//glfwDestroyWindow(m_Window);
 		glfwTerminate();
-	}
-
-	Window::Window(const WindowProps& props)
-	{
-		Init(props);
 	}
 
 	void Window::OnUpdate()

@@ -2,7 +2,7 @@
 
 #include "glm/vec4.hpp"
 #include "glm/vec3.hpp"
-#include "Shader.h"
+#include "abstractions/Shader.h"
 
 namespace My_OpenGL {
 

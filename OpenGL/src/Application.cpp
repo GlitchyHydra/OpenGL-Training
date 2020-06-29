@@ -26,10 +26,6 @@ namespace My_OpenGL {
         m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 
         renderer = std::make_unique<Renderer>();
-        
-        if (glewInit() != GLEW_OK) {
-            std::cout << "error";
-        }
 
         shader = new Shader("res/shaders/Model.shader");
         shader->Bind();

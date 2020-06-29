@@ -4,7 +4,7 @@
 #include "glm/glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Shader.h"
+#include "abstractions/Shader.h"
 
 namespace My_OpenGL {
 	class Camera

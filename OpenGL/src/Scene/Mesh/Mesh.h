@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Texture.h"
-#include "glm//vec3.hpp"
-#include "glm//vec2.hpp"
-#include "VertexBufferLayout.h"
+#include "abstractions/Texture.h"
+#include "abstractions/VertexBufferLayout.h"
+
+#include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
 
 struct Vertex {
 	glm::vec3 Position;

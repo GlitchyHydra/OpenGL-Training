@@ -1,10 +1,8 @@
 #include "Mesh.h"
-#include "Renderer.h"
+#include "abstractions/Renderer.h"
 
 Mesh::Mesh() 
 {}
-
-
 
 Mesh::Mesh(std::vector<Vertex> vert, std::vector<unsigned int> ind)
 	: vertices(vert), indices(ind)

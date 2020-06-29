@@ -1,8 +1,8 @@
 #pragma once
 
-#include "VertexArray.h"
-#include "VertexBuffer.h"
-#include "VertexBufferLayout.h"
+#include "abstractions/VertexArray.h"
+#include "abstractions/VertexBuffer.h"
+#include "abstractions/VertexBufferLayout.h"
 
 
 struct Vertex {
