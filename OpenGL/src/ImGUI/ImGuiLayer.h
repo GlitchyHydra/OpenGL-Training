@@ -6,6 +6,17 @@
 
 namespace My_OpenGL {
 
+	struct ModelData
+	{
+		glm::vec3& translation;
+		glm::vec3& rotation;
+		glm::vec3& scale;
+
+		ModelData(glm::vec3& t, glm::vec3& r, glm::vec3& s)
+			: translation(t), rotation(r), scale(s)
+		{}
+	};
+
 	class ImGuiLayer
 	{
 	public: 
@@ -17,18 +28,15 @@ namespace My_OpenGL {
 
 		static void Begin();
 		static void End();
-		void Render() const;
+		virtual void Render() const;
+
+		void PushData(ModelData* data);
+
+		const std::string& GetName();
 
 	private:
 		std::string m_Name;
 
-		struct ModelData
-		{
-			glm::vec3* translation;
-			glm::vec3* rotation;
-			glm::vec3* scale;
-		};
-
-		std::vector<ModelData*> m_ModelData;
+		ModelData* m_ModelData;
 	};
 }

@@ -20,12 +20,16 @@ namespace My_OpenGL {
 
 		void OnEvent(Event& e);
 
+		bool OnMouseMoved(MouseMovedEvent& event);
+
 		void PushLayer(ImGuiLayer* layer);
 		void PushOverlay(ImGuiLayer* layer);
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
-		bool OnKeyReleased(KeyReleasedEvent& e);
 
+		bool IsKeyPressed(int button);
+		void CheckForMoveCamera();
+	private:
 		std::unique_ptr<Window> m_Window;
 		std::unique_ptr<Renderer> renderer;
 		std::unique_ptr<Scene> m_Scene;
@@ -33,6 +37,10 @@ namespace My_OpenGL {
 
 		bool m_Running = true;
 		LayerStack m_LayerStack;
+
+		bool mousePosCalculated = true;
+		glm::vec2 mouseBeginPos;
+		glm::vec2 mouseEndPos;
 	private:
 		static Application* s_Application;
 	};

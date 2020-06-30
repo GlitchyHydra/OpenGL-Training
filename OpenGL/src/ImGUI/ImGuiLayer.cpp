@@ -13,8 +13,7 @@ namespace My_OpenGL {
 	{}
 
 	ImGuiLayer::~ImGuiLayer()
-	{
-	}
+	{}
 
 	void ImGuiLayer::OnAttach() const
 	{
@@ -30,6 +29,8 @@ namespace My_OpenGL {
 
 		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
+
+		//ImGui::ShowDemoWindow();
 
 		// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
 		ImGuiStyle& style = ImGui::GetStyle();
@@ -65,13 +66,22 @@ namespace My_OpenGL {
 	{
 		ImGui::Begin(m_Name.c_str());
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+		//Model Transforms
+		ImGui::SliderFloat3("Translation", &m_ModelData->translation.x, 0.0f, 1920.0f);
+		ImGui::SliderFloat3("Scale", &m_ModelData->scale.x, 1.0f, 1000.0f);
 		
-		for (ModelData* data : m_ModelData)
-		{
-			ImGui::SliderFloat3("Translation", &data->translation->x, 0.0f, 1920.0f);
-			ImGui::SliderFloat3("Scale", &data->scale->x, 1.0f, 1000.0f);
-		}
 		ImGui::End();
+	}
+
+	void ImGuiLayer::PushData(ModelData* data)
+	{
+		m_ModelData = data;
+	}
+
+	const std::string& ImGuiLayer::GetName()
+	{
+		return m_Name;
 	}
 
 	void ImGuiLayer::End()

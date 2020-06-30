@@ -17,14 +17,18 @@ private:
 	std::vector<Texture*> textures;
 	const std::string& mFilePath;
 	mutable glm::mat4 totalTrans;
-public:
+
 	glm::vec3 translation = glm::vec3(960.f, 540.f, 10.f);
-	glm::mat4 rotation;
+	glm::vec3 rotation;
 	glm::vec3 scale = glm::vec3(100.0f, 100.0f, 100.0f);
 
 public :
 	Model(const std::string& path);
 	~Model() {};
+
+	glm::vec3& GetTranslation() { return translation; }
+	glm::vec3& GetRotation()    { return rotation;    }
+	glm::vec3& GetScale()       { return scale;       }
 
 	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, TextureType typeName);
 	void Draw(Shader& shader, const Renderer& renderer) const;

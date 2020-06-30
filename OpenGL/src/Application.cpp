@@ -29,7 +29,21 @@ namespace My_OpenGL {
 
         shader = new Shader("res/shaders/Model.shader");
         shader->Bind();
+
         m_Scene = std::unique_ptr<Scene>(Scene::CreateScene(*shader));
+        m_Scene->AddModel("res/models/E4/E 45 Aircraft_obj.obj");
+
+        PushLayer(new My_OpenGL::ImGuiLayer("Manage Models"));
+        Model* model = m_Scene->GetModels()[0];
+        for (ImGuiLayer* layer : m_LayerStack)
+        {
+            if (layer->GetName() == "Manage Models")
+            {
+                layer->PushData(new ModelData(model->GetTranslation(),
+                                              model->GetRotation(),
+                                              model->GetScale()));
+            }
+        }
     }
 
     Application::~Application()
@@ -41,7 +55,8 @@ namespace My_OpenGL {
     {
         EventDispatcher dispatcher(e);
         dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
-        dispatcher.Dispatch<KeyReleasedEvent>(BIND_EVENT_FN(Application::OnKeyReleased));
+        dispatcher.Dispatch<MouseMovedEvent>(BIND_EVENT_FN(Application::OnMouseMoved));
+        //dispatcher.Dispatch<KeyReleasedEvent>(BIND_EVENT_FN(Application::OnKeyReleased));
 
         //std::cout << e.ToString() << std::endl;
 
@@ -63,38 +78,82 @@ namespace My_OpenGL {
         m_LayerStack.PopLayer(layer);
 	}
 
+    void Application::CheckForMoveCamera()
+    {
+        if (IsKeyPressed(GLFW_KEY_W))
+            m_Scene->GetCamera()->Forward();
+        if (IsKeyPressed(GLFW_KEY_S))
+            m_Scene->GetCamera()->Back();
+        if (IsKeyPressed(GLFW_KEY_A))
+            m_Scene->GetCamera()->Left();
+        if (IsKeyPressed(GLFW_KEY_D))
+            m_Scene->GetCamera()->Right();
+    }
+
+    bool Application::OnMouseMoved(MouseMovedEvent& event)
+    {
+        auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
+        
+        auto state = glfwGetKey(window, GLFW_KEY_LEFT_ALT);
+        if (state == GLFW_PRESS && mousePosCalculated)
+        {
+            mouseBeginPos = glm::vec2(event.GetX(), event.GetY());
+            mousePosCalculated = false;
+        }
+        return false;
+    }
+
     void Application::Run() {
         //shader->Unbind();
         glEnable(GL_DEPTH_TEST);
 
         while (m_Running)
         {
+
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
             renderer->Clear();
 
-            //Layers render
-            ImGuiLayer::Begin();
-            for (ImGuiLayer* layer : m_LayerStack)
-                layer->Render();
-            ImGuiLayer::End();
+            //Camera Movement
+            CheckForMoveCamera();
+            auto window = static_cast<GLFWwindow*>(GetWindow().GetNativeWindow());
+            if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS && !mousePosCalculated)
+            {
+                double x, y;
+                glfwGetCursorPos(window, &x, &y);
+                mouseEndPos = glm::vec2((float)x, (float)y);
+                std::cout << "Mouse" << std::endl;
+                float deltaX = mouseEndPos.x - mouseBeginPos.x;
+                float deltaY = mouseEndPos.y - mouseBeginPos.y;
+                std::cout << "X: " << deltaX << std::endl;
+                std::cout << "Y: " << deltaY << std::endl;
+
+                mouseBeginPos = mouseEndPos;
+
+                float sensitivity = 0.1f;
+                glm::vec2 rotationVec = glm::vec2(deltaX * sensitivity, deltaY * sensitivity);
+                m_Scene->GetCamera()->SetRotation(rotationVec);
+
+                mousePosCalculated = true;
+                //glm::rotate()
+            }
 
             //Models render
             Model* model = m_Scene->GetModels()[0];
-
             {
-                glm::mat4 modelTs = glm::translate(glm::mat4(1.0f), model->translation);
-                glm::scale(modelTs, model->scale);
-                modelTs[0][0] = model->scale.x;
-                modelTs[1][1] = model->scale.y;
-                modelTs[2][2] = model->scale.z;
-                m_Scene->setView(modelTs, *shader);
+                m_Scene->setView(glm::scale(glm::translate(glm::mat4(1.0f), model->GetTranslation()), model->GetScale()), *shader);
 
                 model->SetModelTrans(*shader);
             }
 
             model->Draw(*shader, *renderer);
             //renderer->Draw(model->va, ib, shader);
+
+            //Layers render
+            ImGuiLayer::Begin();
+            for (ImGuiLayer* layer : m_LayerStack)
+                layer->Render();
+            ImGuiLayer::End();
 
             m_Window->OnUpdate();
         }
@@ -106,38 +165,17 @@ namespace My_OpenGL {
         return true;
     }
 
-    bool Application::OnKeyReleased(KeyReleasedEvent& e)
+    bool Application::IsKeyPressed(int button)
     {
-        switch (e.GetKeyCode()) {
-            case GLFW_KEY_W:
-            {
-                //std::cout << "W" << std::endl;
-                m_Scene->GetCamera()->Up();
-            } break;
-            case GLFW_KEY_S:
-            {
-                //std::cout << "S" << std::endl;
-                m_Scene->GetCamera()->Down();
-            } break;
-            case GLFW_KEY_A:
-            {
-                //std::cout << "A" << std::endl;
-                m_Scene->GetCamera()->Left();
-            } break;
-            case GLFW_KEY_D:
-            {
-                //std::cout << "D" << std::endl;
-                m_Scene->GetCamera()->Right();
-            } break;
-        }
-
-        return true;
+        auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
+        auto state = glfwGetKey(window, button);
+        return state == GLFW_PRESS;
     }
+
 }
 
 int main(int argc, char** argv) {
     auto app = My_OpenGL::CreateApplication();
-    app->PushLayer(new My_OpenGL::ImGuiLayer("Manage Models"));
     app->Run();
     delete app;
     return 0;

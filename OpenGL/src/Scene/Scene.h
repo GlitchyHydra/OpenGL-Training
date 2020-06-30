@@ -28,7 +28,8 @@ namespace My_OpenGL {
 		Camera* GetCamera() const;
 
 	private:
-		glm::mat4 proj = glm::ortho(0.f, 1920.0f, 0.f, 1080.0f, -2000.0f, 2000.0f);
+		//glm::mat4 proj = glm::perspective((float)glm::radians(45.0f), 1920.0f / 1080.0f, -1.0f, 100.0f);
+		glm::mat4 proj = glm::ortho(0.f, 1920.0f, 0.f, 1080.0f, -10.0f, 2000.0f);
 		std::vector<Model*> models;
 		Light* light;
 		Camera* camera;
