@@ -70,6 +70,7 @@ namespace My_OpenGL {
 		//Model Transforms
 		ImGui::SliderFloat3("Translation", &m_ModelData->translation.x, 0.0f, 1920.0f);
 		ImGui::SliderFloat3("Scale", &m_ModelData->scale.x, 1.0f, 1000.0f);
+		ImGui::SliderFloat3("Rotation", &m_ModelData->rotation.x, 0.0f, 359.0f);
 		
 		ImGui::End();
 	}

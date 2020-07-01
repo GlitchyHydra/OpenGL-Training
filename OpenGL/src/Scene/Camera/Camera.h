@@ -11,6 +11,8 @@ namespace My_OpenGL {
 	{
 	public:
 		glm::mat4& GetView() const;
+		const glm::vec3 GetPosition() const
+		{ return position; };
 
 		void SetEyeInShader(Shader& shader) const;
 		void SetRotation(glm::vec2& rotationVec);

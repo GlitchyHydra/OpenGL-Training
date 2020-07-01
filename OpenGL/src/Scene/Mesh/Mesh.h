@@ -20,9 +20,11 @@ public:
 	unsigned int matInd;
 	VertexArray va;
 	IndexBuffer ib;
+
 private:
 	VertexBuffer vb;
 	VertexBufferLayout vbl;
+
 public:
 	Mesh(std::vector<Vertex> vert, std::vector<unsigned int> ind);
 	Mesh();

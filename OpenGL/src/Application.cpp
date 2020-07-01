@@ -29,9 +29,11 @@ namespace My_OpenGL {
 
         shader = new Shader("res/shaders/Model.shader");
         shader->Bind();
-
         m_Scene = std::unique_ptr<Scene>(Scene::CreateScene(*shader));
         m_Scene->AddModel("res/models/E4/E 45 Aircraft_obj.obj");
+        shader->Unbind();
+
+        m_Scene->SetupSkybox();
 
         PushLayer(new My_OpenGL::ImGuiLayer("Manage Models"));
         Model* model = m_Scene->GetModels()[0];
@@ -138,15 +140,16 @@ namespace My_OpenGL {
                 //glm::rotate()
             }
 
+            shader->Bind();
             //Models render
             Model* model = m_Scene->GetModels()[0];
             {
-                m_Scene->setView(glm::scale(glm::translate(glm::mat4(1.0f), model->GetTranslation()), model->GetScale()), *shader);
-
                 model->SetModelTrans(*shader);
+                m_Scene->setView(model->GetTransform(), *shader);
             }
-
+            shader->Unbind();
             model->Draw(*shader, *renderer);
+            m_Scene->GetSkybox()->Render(m_Scene->GetProj(), *renderer);
             //renderer->Draw(model->va, ib, shader);
 
             //Layers render

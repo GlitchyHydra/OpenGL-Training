@@ -8,6 +8,13 @@ Model::Model(const std::string& path) :
     loadModel();
 }
 
+void Model::SetTranslation(glm::vec3 nTranslation)
+{
+    translation.x = nTranslation.x; 
+    translation.y = nTranslation.y;
+    translation.z = nTranslation.z;
+}
+
 void Model::loadModel()
 {
     Assimp::Importer import;
@@ -44,8 +51,15 @@ void Model::processMesh(aiMesh* ai_Mesh, const aiScene* scene, Mesh& mesh)
         Vertex vertex;
         glm::vec3 vectorPosition(ai_Mesh->mVertices[i].x,
             ai_Mesh->mVertices[i].y, ai_Mesh->mVertices[i].z);
-        glm::vec3 vectorNormal (ai_Mesh->mNormals[i].x,
-            ai_Mesh->mNormals[i].y, ai_Mesh->mNormals[i].z);
+
+        glm::vec3 vectorNormal { 0.0f, 0.0f, 0.0f };
+        if (ai_Mesh->mNormals != nullptr)
+        {
+            vectorNormal.x = ai_Mesh->mNormals[i].x;
+            vectorNormal.y = ai_Mesh->mNormals[i].y;
+            vectorNormal.z = ai_Mesh->mNormals[i].z;
+        }
+
         glm::vec2 texCoords(0.f, 0.f);
         if (ai_Mesh->mTextureCoords[0])
         {
@@ -105,7 +119,10 @@ void Model::InitTextures(const aiScene* scene, const std::string& Filename)
 
 void Model::SetModelTrans(Shader& shader) const
 {
-    totalTrans = glm::scale(glm::mat4(1.0f), scale) * glm::translate(glm::mat4(1.0f), translation);
+    totalTrans = glm::scale(glm::translate(glm::mat4(1.0f), translation), scale);
+    totalTrans = glm::rotate(totalTrans, glm::radians(rotation.x), glm::vec3(1.0, 0.0, 0.0));
+    totalTrans = glm::rotate(totalTrans, glm::radians(rotation.y), glm::vec3(0.0, 1.0, 0.0));
+    totalTrans = glm::rotate(totalTrans, glm::radians(rotation.z), glm::vec3(0.0, 0.0, 1.0));
     shader.SetUniformMat4f("u_trans", totalTrans);
 }
 
@@ -126,11 +143,15 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 
 void Model::Draw(Shader& shader, const Renderer& renderer) const
 {
+    shader.Bind();
     for (auto& mesh : meshes) {
         mesh.Bind();
-        this->textures[mesh.matInd]->Bind();
-        this->textures[mesh.matInd]->SetTexture(shader);
+        if (textures.size() > 0) {
+            this->textures[mesh.matInd]->Bind();
+            this->textures[mesh.matInd]->SetTexture(shader);
+        }
         renderer.Draw(mesh.va, mesh.ib, shader);
         mesh.va.Unbind();
     }
+    shader.Unbind();
 }

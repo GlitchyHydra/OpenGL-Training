@@ -6,6 +6,8 @@ namespace My_OpenGL {
 
     Scene::Scene(Shader& shader) : light(new Light(shader)), camera(new Camera())
     {
+        skybox = nullptr;
+
         camera->SetEyeInShader(shader);
 
         light->SetDirectLights(shader);
@@ -20,6 +22,22 @@ namespace My_OpenGL {
         {
             delete model;
         }
+    }
+
+    void Scene::SetupSkybox()
+    {
+        skybox = new Skybox(camera);
+        skybox->SetShader(new Shader("res/shaders/Skybox.shader"));
+
+        skybox->GetShader()->Bind();
+        skybox->Init(".",
+            "res/skybox/sp3right.jpg",
+            "res/skybox/sp3left.jpg",
+            "res/skybox/sp3top.jpg",
+            "res/skybox/sp3bot.jpg",
+            "res/skybox/sp3front.jpg",
+            "res/skybox/sp3back.jpg");
+        skybox->GetShader()->Unbind();
     }
 
     void Scene::AddModel(const std::string& path)

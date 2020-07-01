@@ -101,6 +101,7 @@
     <ClInclude Include="src\Event\KeyEvent.h" />
     <ClInclude Include="src\Event\MouseEvent.h" />
     <ClInclude Include="src\ImGUI\ImGuiLayer.h" />
+    <ClInclude Include="src\ImGUI\ImGuiViewportRender.h" />
     <ClInclude Include="src\Layer\LayerStack.h" />
     <ClInclude Include="src\Scene\Camera\Camera.h" />
     <ClInclude Include="src\Scene\Light\Light.h" />
@@ -108,6 +109,7 @@
     <ClInclude Include="src\Scene\Model\Model.h" />
     <ClInclude Include="src\Scene\Primitive\Cube.h" />
     <ClInclude Include="src\Scene\Scene.h" />
+    <ClInclude Include="src\Scene\Skybox\CubemapTexture.h" />
     <ClInclude Include="src\Scene\Skybox\Skybox.h" />
     <ClInclude Include="src\Window\Window.h" />
     <ClInclude Include="src\abstractions\IndexBuffer.h" />
@@ -394,6 +396,7 @@
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\ImGUI\ImGuiBuild.cpp" />
     <ClCompile Include="src\ImGUI\ImGuiLayer.cpp" />
+    <ClCompile Include="src\ImGUI\ImGuiViewportRender.cpp" />
     <ClCompile Include="src\Layer\LayerStack.cpp" />
     <ClCompile Include="src\Scene\Camera\Camera.cpp" />
     <ClCompile Include="src\Scene\Light\Light.cpp" />
@@ -401,6 +404,7 @@
     <ClCompile Include="src\Scene\Model\Model.cpp" />
     <ClCompile Include="src\Scene\Primitive\Cube.cpp" />
     <ClCompile Include="src\Scene\Scene.cpp" />
+    <ClCompile Include="src\Scene\Skybox\CubemapTexture.cpp" />
     <ClCompile Include="src\Scene\Skybox\Skybox.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
     <ClCompile Include="src\abstractions\IndexBuffer.cpp" />
@@ -414,6 +418,7 @@
     <None Include="res\shaders\Basic.shader" />
     <None Include="res\shaders\Light.shader" />
     <None Include="res\shaders\Model.shader" />
+    <None Include="res\shaders\Skybox.shader" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="vendor\GLFW\GLFW.vcxproj">
