@@ -1,5 +1,4 @@
 #include "Mesh.h"
-#include "abstractions/Renderer.h"
 
 Mesh::Mesh() 
 {}

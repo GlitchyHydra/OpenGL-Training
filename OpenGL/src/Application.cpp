@@ -26,26 +26,31 @@ namespace My_OpenGL {
         m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 
         renderer = std::make_unique<Renderer>();
-
+        
         shader = new Shader("res/shaders/Model.shader");
         shader->Bind();
         m_Scene = std::unique_ptr<Scene>(Scene::CreateScene(*shader));
         m_Scene->AddModel("res/models/E4/E 45 Aircraft_obj.obj");
+
         shader->Unbind();
 
         m_Scene->SetupSkybox();
 
-        PushLayer(new My_OpenGL::ImGuiLayer("Manage Models"));
+        ImGuiLayerData* imgd = new My_OpenGL::ImGuiLayerData();
+        
+
+        PushLayer(imgd);
+        PushLayer(new My_OpenGL::ImGuiViewportLayer(m_Scene.get(), renderer->GetFrameBuffer()));
+
         Model* model = m_Scene->GetModels()[0];
-        for (ImGuiLayer* layer : m_LayerStack)
-        {
-            if (layer->GetName() == "Manage Models")
-            {
-                layer->PushData(new ModelData(model->GetTranslation(),
-                                              model->GetRotation(),
-                                              model->GetScale()));
-            }
-        }
+
+        ModelData* modelData = new ModelData(model->GetTranslation(),
+            model->GetRotation(),
+            model->GetScale());
+
+        imgd->PushData(modelData, m_Scene->GetLight());
+
+        ImGuiLayer::Init();
     }
 
     Application::~Application()
@@ -90,6 +95,28 @@ namespace My_OpenGL {
             m_Scene->GetCamera()->Left();
         if (IsKeyPressed(GLFW_KEY_D))
             m_Scene->GetCamera()->Right();
+
+        auto window = static_cast<GLFWwindow*>(GetWindow().GetNativeWindow());
+        if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS && !mousePosCalculated)
+        {
+            double x, y;
+            glfwGetCursorPos(window, &x, &y);
+            mouseEndPos = glm::vec2((float)x, (float)y);
+            std::cout << "Mouse" << std::endl;
+            float deltaX = mouseEndPos.x - mouseBeginPos.x;
+            float deltaY = mouseEndPos.y - mouseBeginPos.y;
+            std::cout << "X: " << deltaX << std::endl;
+            std::cout << "Y: " << deltaY << std::endl;
+
+            mouseBeginPos = mouseEndPos;
+
+            float sensitivity = 0.1f;
+            glm::vec2 rotationVec = glm::vec2(deltaX * sensitivity, deltaY * sensitivity);
+            m_Scene->GetCamera()->SetRotation(rotationVec);
+
+            mousePosCalculated = true;
+            //glm::rotate()
+        }
     }
 
     bool Application::OnMouseMoved(MouseMovedEvent& event)
@@ -106,57 +133,25 @@ namespace My_OpenGL {
     }
 
     void Application::Run() {
-        //shader->Unbind();
         glEnable(GL_DEPTH_TEST);
-
         while (m_Running)
         {
-
-            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
+            renderer->GetFrameBuffer()->Bind();
             renderer->Clear();
 
             //Camera Movement
             CheckForMoveCamera();
-            auto window = static_cast<GLFWwindow*>(GetWindow().GetNativeWindow());
-            if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS && !mousePosCalculated)
-            {
-                double x, y;
-                glfwGetCursorPos(window, &x, &y);
-                mouseEndPos = glm::vec2((float)x, (float)y);
-                std::cout << "Mouse" << std::endl;
-                float deltaX = mouseEndPos.x - mouseBeginPos.x;
-                float deltaY = mouseEndPos.y - mouseBeginPos.y;
-                std::cout << "X: " << deltaX << std::endl;
-                std::cout << "Y: " << deltaY << std::endl;
 
-                mouseBeginPos = mouseEndPos;
-
-                float sensitivity = 0.1f;
-                glm::vec2 rotationVec = glm::vec2(deltaX * sensitivity, deltaY * sensitivity);
-                m_Scene->GetCamera()->SetRotation(rotationVec);
-
-                mousePosCalculated = true;
-                //glm::rotate()
-            }
-
-            shader->Bind();
             //Models render
-            Model* model = m_Scene->GetModels()[0];
-            {
-                model->SetModelTrans(*shader);
-                m_Scene->setView(model->GetTransform(), *shader);
-            }
-            shader->Unbind();
-            model->Draw(*shader, *renderer);
+            
+            renderer->Draw(*m_Scene.get(), *shader);
             m_Scene->GetSkybox()->Render(m_Scene->GetProj(), *renderer);
+
             //renderer->Draw(model->va, ib, shader);
 
+            renderer->GetFrameBuffer()->Unbind();
             //Layers render
-            ImGuiLayer::Begin();
-            for (ImGuiLayer* layer : m_LayerStack)
-                layer->Render();
-            ImGuiLayer::End();
+            ImGuiLayer::Update(m_LayerStack);
 
             m_Window->OnUpdate();
         }

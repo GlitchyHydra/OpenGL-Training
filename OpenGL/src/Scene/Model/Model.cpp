@@ -140,18 +140,3 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 
     return textures;
 }
-
-void Model::Draw(Shader& shader, const Renderer& renderer) const
-{
-    shader.Bind();
-    for (auto& mesh : meshes) {
-        mesh.Bind();
-        if (textures.size() > 0) {
-            this->textures[mesh.matInd]->Bind();
-            this->textures[mesh.matInd]->SetTexture(shader);
-        }
-        renderer.Draw(mesh.va, mesh.ib, shader);
-        mesh.va.Unbind();
-    }
-    shader.Unbind();
-}

@@ -53,19 +53,20 @@ namespace My_OpenGL {
 	};
 
 	class Light {
+	public:
+		Light(Shader& shader);
+		void SetDirectLights(Shader& shader);
+		void SetPointLights(Shader& shader);
+		void SetPositionAndColor(Shader& shader, unsigned int index);
+		
+		std::vector<DirectionalLight>& GetDirectLight() { return lightsDir; }
+		std::vector<PointLight>& GetPointLight() { return lightsPoint; }
+
 	private:
 		std::vector<DirectionalLight> lightsDir;
 		std::vector<PointLight> lightsPoint;
 
 		const unsigned int lightsDirCount = 2;
 		const unsigned int lightsPointCount = 3;
-	public:
-		Light(Shader& shader);
-		void SetDirectLights(Shader& shader);
-		void SetPointLights(Shader& shader);
-		void SetPositionAndColor(Shader& shader, unsigned int index);
-		void Draw(Shader& shader);
-	private:
-		
 	};
 };

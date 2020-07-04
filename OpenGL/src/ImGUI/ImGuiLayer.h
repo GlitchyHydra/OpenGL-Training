@@ -4,7 +4,11 @@
 #include <vector>
 #include <glm/glm.hpp>
 
+#include "Scene/Light/Light.h"
+
 namespace My_OpenGL {
+
+	class LayerStack;
 
 	struct ModelData
 	{
@@ -17,26 +21,48 @@ namespace My_OpenGL {
 		{}
 	};
 
+	struct LightData
+	{
+		std::vector<DirectionalLight>& directionalLights;
+		std::vector<PointLight>& pointLights;
+
+	};
+
 	class ImGuiLayer
 	{
 	public: 
 		ImGuiLayer(const std::string name);
-		~ImGuiLayer();
+		virtual ~ImGuiLayer();
 
-		void OnAttach() const;
-		void OnDetach() const;
+		static void Init();
+		static void Shutdown();
 
-		static void Begin();
-		static void End();
+		static void ShowDockSpace(bool* p_open);
+		static void Update(LayerStack& layerStack);
+
+		virtual void Begin() const;
+		virtual void End() const;
 		virtual void Render() const;
 
-		void PushData(ModelData* data);
-
-		const std::string& GetName();
+		const std::string& GetName() const;
 
 	private:
 		std::string m_Name;
+	};
 
+
+	class ImGuiLayerData : public ImGuiLayer
+	{
+	public:
+		ImGuiLayerData();
+		virtual ~ImGuiLayerData();
+
+		virtual void Render() const override;
+
+		void PushData(ModelData* data, Light* light);
+
+	private:
 		ModelData* m_ModelData;
+		LightData* m_LightData;
 	};
 }

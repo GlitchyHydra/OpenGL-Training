@@ -1,5 +1,7 @@
 #include "ImGuiLayer.h"
 
+#include <Layer/LayerStack.h>
+
 #include "Application.h"
 
 #include <imgui.h>
@@ -15,7 +17,7 @@ namespace My_OpenGL {
 	ImGuiLayer::~ImGuiLayer()
 	{}
 
-	void ImGuiLayer::OnAttach() const
+	void ImGuiLayer::Init()
 	{
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -48,51 +50,106 @@ namespace My_OpenGL {
 		ImGui_ImplOpenGL3_Init("#version 410");
 	}
 
-	void ImGuiLayer::OnDetach() const
+	void ImGuiLayer::Shutdown()
 	{
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 	}
 
-	void ImGuiLayer::Begin()
+	void ImGuiLayer::Begin() const
 	{
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
+		ImGui::Begin(m_Name.c_str());
 	}
 
 	void ImGuiLayer::Render() const
 	{
-		ImGui::Begin(m_Name.c_str());
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
-		//Model Transforms
-		ImGui::SliderFloat3("Translation", &m_ModelData->translation.x, 0.0f, 1920.0f);
-		ImGui::SliderFloat3("Scale", &m_ModelData->scale.x, 1.0f, 1000.0f);
-		ImGui::SliderFloat3("Rotation", &m_ModelData->rotation.x, 0.0f, 359.0f);
-		
-		ImGui::End();
 	}
 
-	void ImGuiLayer::PushData(ModelData* data)
-	{
-		m_ModelData = data;
-	}
-
-	const std::string& ImGuiLayer::GetName()
+	const std::string& ImGuiLayer::GetName() const
 	{
 		return m_Name;
 	}
 
-	void ImGuiLayer::End()
+	void ImGuiLayer::End() const
 	{
-		ImGuiIO& io = ImGui::GetIO();
-		Application& app = Application::Get();
-		io.DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
+		ImGui::End();
+	}
 
+	void ImGuiLayer::ShowDockSpace(bool* p_open)
+	{
+		static bool opt_fullscreen_persistant = true;
+		bool opt_fullscreen = opt_fullscreen_persistant;
+		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+
+		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
+		// because it would be confusing to have two docking targets within each others.
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+		if (opt_fullscreen)
+		{
+			ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImGui::SetNextWindowPos(viewport->Pos);
+			ImGui::SetNextWindowSize(viewport->Size);
+			ImGui::SetNextWindowViewport(viewport->ID);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+			window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+		}
+
+		// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background 
+		// and handle the pass-thru hole, so we ask Begin() to not render a background.
+		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+			window_flags |= ImGuiWindowFlags_NoBackground;
+
+		// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
+		// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
+		// all active windows docked into it will lose their parent and become undocked.
+		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
+		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		ImGui::Begin("###DockSpace", p_open, window_flags);
+		ImGui::PopStyleVar();
+
+		if (opt_fullscreen)
+			ImGui::PopStyleVar(2);
+
+		// DockSpace
+		ImGuiIO& io = ImGui::GetIO();
+		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+		{
+			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+		}
+		else
+		{
+			//ShowDockingDisabledMessage();
+		}
+
+
+		ImGui::End();
+	}
+
+	void ImGuiLayer::Update(LayerStack& layerStack)
+	{
+		bool show = true;
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+		ImGuiIO& io = ImGui::GetIO();
+
+		ShowDockSpace(&show);
+
+		//updateWindows();
+		for (ImGuiLayer* layer : layerStack)
+		{
+			layer->Begin();
+			layer->Render();
+			layer->End();
+		}
+		
 		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
@@ -101,5 +158,63 @@ namespace My_OpenGL {
 			ImGui::RenderPlatformWindowsDefault();
 			glfwMakeContextCurrent(backup_current_context);
 		}
+
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	}
+
+	ImGuiLayerData::ImGuiLayerData()
+		: ImGuiLayer("Manipulation")
+	{
+
+	}
+
+	ImGuiLayerData::~ImGuiLayerData()
+	{
+		delete m_ModelData;
+		delete m_LightData;
+	}
+
+	void ImGuiLayerData::Render() const
+	{
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		//Model Transforms
+		ImGui::Text("Model");
+		ImGui::SliderFloat3("Translation", &m_ModelData->translation.x, 0.0f, 1920.0f);
+		ImGui::SliderFloat3("Scale", &m_ModelData->scale.x, 1.0f, 1000.0f);
+		ImGui::SliderFloat3("Rotation", &m_ModelData->rotation.x, 0.0f, 359.0f);
+		//Light Transforms
+		/*ImGui::Text("Directional Lights");
+		for (unsigned int i = 0; i < m_LightData->directionalLights.size(); i++)
+		{
+			DirectionalLight& light = m_LightData->directionalLights[i];
+			ImGui::Text("Directional Light " + i);
+			ImGui::SliderFloat("Ambinet Intensity" + i, &light.AmbientIntensity, 0.0f, 20.0f);
+			ImGui::SliderFloat("Diffuse Intensity" + i, &light.DiffuseIntensity, 0.0f, 20.0f);
+			ImGui::SliderFloat("SpecularIntensity" + i, &light.SpecularIntensity, 0.0f, 20.0f);
+			ImGui::SliderFloat4("Color " + i, &light.Color.x, 0.0f, 1.0f);
+			ImGui::SliderFloat3("Direction" + i, &light.Direction.x, 0.0f, 1920.0f);
+		}
+		
+
+		ImGui::Text("Points Lights");
+		for (unsigned int i = 0; i < m_LightData->pointLights.size(); i++)
+		{
+			PointLight& light = m_LightData->pointLights[i];
+			ImGui::Text("Point Light " + i);
+			ImGui::SliderFloat("Point Light Ambinet Intensity" + i, &light.AmbientIntensity, 0.0f, 20.0f);
+			ImGui::SliderFloat("Point Light Diffuse Intensity" + i, &light.DiffuseIntensity, 0.0f, 20.0f);
+			ImGui::SliderFloat("Point Light SpecularIntensity" + i, &light.SpecularIntensity, 0.0f, 20.0f);
+			ImGui::SliderFloat4("Point Light Color " + i, &light.Color.x, 0.0f, 1.0f);
+			ImGui::SliderFloat3("Position" + i, &light.Position.x, 0.0f, 1920.0f);
+		}*/
+	}
+
+	void ImGuiLayerData::PushData(ModelData* data, Light* light)
+	{
+		m_ModelData = data;
+		m_LightData = new LightData{
+			light->GetDirectLight(),
+			light->GetPointLight()
+		};
 	}
 }

@@ -33,7 +33,7 @@ namespace My_OpenGL {
 		const glm::mat4& GetProj() const { return proj; }
 
 	private:
-		glm::mat4 proj = glm::perspective((float)glm::radians(45.0f), 1920.0f / 1080.0f, -1.0f, 100.0f);
+		glm::mat4 proj = glm::scale(glm::perspective((float)glm::radians(45.0f), 1920.0f / 1080.0f, -1.0f, 100.0f), glm::vec3(1.0f, -1.0f, 1.0f));
 		//glm::mat4 proj = glm::ortho(0.f, 1920.0f, 0.f, 1080.0f, -10.0f, 4000.0f);
 		std::vector<Model*> models;
 		Light* light;

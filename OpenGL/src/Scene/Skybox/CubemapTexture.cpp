@@ -52,7 +52,7 @@ namespace My_OpenGL {
 		for (unsigned int i = 0; i < 6; i++)
 		{
 			unsigned char* m_LocalBuffer = stbi_load(m_fileNames[i].c_str(), &m_Width, &m_Height, &m_BPP, 4);
-			GLCall(glTexImage2D(types[i], 0, GL_RGB, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_LocalBuffer));
+			glTexImage2D(types[i], 0, GL_RGB, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_LocalBuffer);
 
 			if (m_LocalBuffer) {
 				stbi_image_free(m_LocalBuffer);

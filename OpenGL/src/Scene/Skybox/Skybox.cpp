@@ -1,6 +1,5 @@
 #include "Skybox.h"
 
-
 namespace My_OpenGL {
 
     Skybox::Skybox(Camera* pCamera)
@@ -69,7 +68,7 @@ namespace My_OpenGL {
 
         m_CubemapTex->Bind(GL_TEXTURE0 + slot); 
         skyboxShader->SetUniform1i("gCubemapTexture", slot);
-        m_Mesh->Draw(*skyboxShader, pRenderer);
+        pRenderer.DrawSkybox(*m_Mesh, *skyboxShader);
 
         glCullFace(OldCullFaceMode);
         glDepthFunc(OldDepthFuncMode);

@@ -11,7 +11,6 @@ namespace My_OpenGL {
 	void LayerStack::PushLayer(ImGuiLayer* layer)
 	{
 		m_Layers.emplace_back(layer);
-		layer->OnAttach();
 	}
 
 	void LayerStack::PopLayer(ImGuiLayer* layer)
@@ -21,7 +20,6 @@ namespace My_OpenGL {
 		{
 			m_Layers.erase(it);
 			//m_LayerInsertIndex--;
-			layer->OnDetach();
 		}
 	}
 }

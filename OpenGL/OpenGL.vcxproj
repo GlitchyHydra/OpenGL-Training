@@ -95,13 +95,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\abstractions\OpenGLFramebuffer.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Event\ApplicationEvent.h" />
     <ClInclude Include="src\Event\Event.h" />
     <ClInclude Include="src\Event\KeyEvent.h" />
     <ClInclude Include="src\Event\MouseEvent.h" />
     <ClInclude Include="src\ImGUI\ImGuiLayer.h" />
-    <ClInclude Include="src\ImGUI\ImGuiViewportRender.h" />
+    <ClInclude Include="src\ImGUI\ImGuiViewportLayer.h" />
     <ClInclude Include="src\Layer\LayerStack.h" />
     <ClInclude Include="src\Scene\Camera\Camera.h" />
     <ClInclude Include="src\Scene\Light\Light.h" />
@@ -393,10 +394,11 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\abstractions\OpenGLFramebuffer.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\ImGUI\ImGuiBuild.cpp" />
     <ClCompile Include="src\ImGUI\ImGuiLayer.cpp" />
-    <ClCompile Include="src\ImGUI\ImGuiViewportRender.cpp" />
+    <ClCompile Include="src\ImGUI\ImGuiViewportLayer.cpp" />
     <ClCompile Include="src\Layer\LayerStack.cpp" />
     <ClCompile Include="src\Scene\Camera\Camera.cpp" />
     <ClCompile Include="src\Scene\Light\Light.cpp" />
@@ -415,7 +417,6 @@
     <ClCompile Include="src\abstractions\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\shaders\Basic.shader" />
     <None Include="res\shaders\Light.shader" />
     <None Include="res\shaders\Model.shader" />
     <None Include="res\shaders\Skybox.shader" />

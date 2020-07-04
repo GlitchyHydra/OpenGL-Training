@@ -1,5 +1,7 @@
 #pragma once
-#include "Renderer.h"
+
+#include <string>
+#include "Shader.h"
 
 enum class TextureType
 {

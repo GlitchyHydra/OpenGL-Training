@@ -951,8 +951,9 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp">
       <Filter>vendor\glm\glm</Filter>
     </ClInclude>
-    <ClInclude Include="src\ImGUI\ImGuiViewportRender.h" />
     <ClInclude Include="src\Scene\Skybox\CubemapTexture.h" />
+    <ClInclude Include="src\ImGUI\ImGuiViewportLayer.h" />
+    <ClInclude Include="src\abstractions\OpenGLFramebuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp">
@@ -1009,13 +1010,11 @@
     <ClCompile Include="src\abstractions\VertexBuffer.cpp">
       <Filter>src\abstractions</Filter>
     </ClCompile>
-    <ClCompile Include="src\ImGUI\ImGuiViewportRender.cpp" />
     <ClCompile Include="src\Scene\Skybox\CubemapTexture.cpp" />
+    <ClCompile Include="src\ImGUI\ImGuiViewportLayer.cpp" />
+    <ClCompile Include="src\abstractions\OpenGLFramebuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\shaders\Basic.shader">
-      <Filter>res\shaders</Filter>
-    </None>
     <None Include="res\shaders\Light.shader">
       <Filter>res\shaders</Filter>
     </None>

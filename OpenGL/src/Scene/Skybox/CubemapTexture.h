@@ -3,7 +3,6 @@
 #include <string>
 
 #include "glad/glad.h"
-#include "abstractions/Texture.h"
 
 namespace My_OpenGL {
 
